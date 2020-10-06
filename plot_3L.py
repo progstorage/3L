@@ -11,7 +11,7 @@ while i<=1:
 
 l1 = []
 l3 = []
-with open(rf'D:\u\ConsoleApplication1\ConsoleApplication1\out.txt', 'r') as f:
+with open('out.txt', 'r') as f:
 	for line in f:
 		l = line.strip('\n').split(',')
 		l1.append([float(l[0]), float(l[1])])
@@ -23,10 +23,12 @@ ax.grid(True, which='both')
 ax.set_ylim(-0.5, 2)
 ax.set_xlim(-2, 2)
 plt.scatter(x, y)
-
 plt.scatter([i[0] for i in l1], [i[1] for i in l1])
 plt.scatter([i[0] for i in l3], [i[1] for i in l3])
 
+plt.plot(x,y)
+plt.plot([i[0] for i in l1], [i[1] for i in l1])
+plt.plot([i[0] for i in l3], [i[1] for i in l3])
 plt.gca().set_aspect('equal', adjustable='box')
 plt.draw()
 plt.show()
