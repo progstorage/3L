@@ -1,4 +1,4 @@
-//#include "stdafx.h"
+п»ї//#include "stdafx.h"
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
@@ -11,8 +11,8 @@ using Matrix = vector<vector<double>>;
 
 
 vector_pairs sort(const vector<double>& x, const vector<double>& y) {
-	//функция сортирует исходные координаты в смысле евклидовой метрики
-	// и возвращает вектор пар
+	//С„СѓРЅРєС†РёСЏ СЃРѕСЂС‚РёСЂСѓРµС‚ РёСЃС…РѕРґРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ СЃРјС‹СЃР»Рµ РµРІРєР»РёРґРѕРІРѕР№ РјРµС‚СЂРёРєРё
+	// Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РІРµРєС‚РѕСЂ РїР°СЂ
 
 	int len = x.size();
 	vector_pairs sorted_points(len);
@@ -65,8 +65,8 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y) {
 
 
 void levels(vector_pairs points) {
-	// функция принимает на вход пары точек
-	// и записывает полученные уровни в txt файл
+	// С„СѓРЅРєС†РёСЏ РїСЂРёРЅРёРјР°РµС‚ РЅР° РІС…РѕРґ РїР°СЂС‹ С‚РѕС‡РµРє
+	// Рё Р·Р°РїРёСЃС‹РІР°РµС‚ РїРѕР»СѓС‡РµРЅРЅС‹Рµ СѓСЂРѕРІРЅРё РІ txt С„Р°Р№Р»
 
 	int len = points.size();
 	vector_pairs l1(len);
@@ -122,7 +122,7 @@ void levels(vector_pairs points) {
 
 
 void print_Matrix(const Matrix& M) {
-	// вывести матрицу
+	// РІС‹РІРµСЃС‚Рё РјР°С‚СЂРёС†Сѓ
 	for (const auto& v : M) {
 		for (const auto& e : v)
 			cout << e << " ";
@@ -132,7 +132,7 @@ void print_Matrix(const Matrix& M) {
 
 
 Matrix transpose_Matrix(const Matrix& M) {
-	// транспонирование матрицы
+	// С‚СЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРёРµ РјР°С‚СЂРёС†С‹
 	int n = M.size();
 	int m = M[0].size();
 	Matrix N(m, vector<double>(n));
@@ -146,7 +146,7 @@ Matrix transpose_Matrix(const Matrix& M) {
 
 
 Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
-	// перемножение двух матриц
+	// РїРµСЂРµРјРЅРѕР¶РµРЅРёРµ РґРІСѓС… РјР°С‚СЂРёС†
 	int m1 = M.size();
 	int m2 = M[0].size();
 	int n1 = N.size();
@@ -175,7 +175,7 @@ Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 
 
 void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points) {
-	// заполняет матрицу (2я степень неявной функции)
+	// Р·Р°РїРѕР»РЅСЏРµС‚ РјР°С‚СЂРёС†Сѓ (2СЏ СЃС‚РµРїРµРЅСЊ РЅРµСЏРІРЅРѕР№ С„СѓРЅРєС†РёРё)
 	for (int i = 0; i < M.size(); i++) {
 		M[i][0] = 1;
 		M[i][1] = points[i].first;
@@ -188,12 +188,12 @@ void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points) {
 
 
 double det_Matrix(const Matrix& M) {
-	// находит определитель квадратной матрицы
+	// РЅР°С…РѕРґРёС‚ РѕРїСЂРµРґРµР»РёС‚РµР»СЊ РєРІР°РґСЂР°С‚РЅРѕР№ РјР°С‚СЂРёС†С‹
 }
 
 
 Matrix inverse_Matrix(const Matrix& M) {
-	// возвращает обратную матрицу
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РѕР±СЂР°С‚РЅСѓСЋ РјР°С‚СЂРёС†Сѓ
 }
 
 
@@ -209,7 +209,7 @@ int main(void) {
 	vector_pairs sorted_point = sort(x, y);
 
 	levels(sorted_point);
-	system("python plot_3L.py");		// отрисовка
+	system("python plot_3L.py");		// РѕС‚СЂРёСЃРѕРІРєР°
 	
 	Matrix M(len, vector<double>(6));
 	fill_3L_Matrix_2nd_power(M, sorted_point);
