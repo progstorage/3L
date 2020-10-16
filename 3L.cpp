@@ -1,4 +1,4 @@
-﻿//#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
@@ -10,10 +10,11 @@ using vector_pairs = vector<pair<double, double>>;
 using Matrix = vector<vector<double>>;
 
 
-vector_pairs sort(const vector<double>& x, const vector<double>& y) {
+vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 	//функция сортирует исходные координаты в смысле евклидовой метрики
 	// и возвращает вектор пар
 
+	*d = 0;
 	int len = x.size();
 	vector_pairs sorted_points(len);
 	sorted_points[0].first = x[0];
@@ -30,7 +31,9 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y) {
 		flags[i] = 0;
 	}
 	double dist = 0;
+	double dist1 = 0; //расстояние до первой точки
 	double min_dist = sqrt((x[1] - x[0])*(x[1] - x[0]) + (y[1] - y[0])*(y[1] - y[0]));
+	double max_dist = min_dist;
 	int min_dist_ind = 0;
 	int i = 0;
 	double tmp_x = 0;
@@ -43,10 +46,14 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y) {
 			for (int j = 0; j < 11; j++) {
 				if ((j != i) && (flags[j] == 0)) {
 					dist = sqrt((x[j] - tmp_x)*(x[j] - tmp_x) + (y[j] - tmp_y)*(y[j] - tmp_y));
+					dist1 = sqrt((x[j] - x[0])*(x[j] - x[0]) + (y[j] - y[0])*(y[j] - y[0]));
 					//cout << "j = " << j << ' ' << dist << endl;
 					if (dist <= min_dist) {
 						min_dist = dist;
 						min_dist_ind = j;
+					}
+					if (dist1 >= max_dist) {
+						max_dist = dist1;
 					}
 				}
 				//else { continue; }
@@ -59,12 +66,12 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y) {
 		}
 		//else { continue; }
 	}
-
+	*d = max_dist*0.04;
 	return sorted_points;
 }
 
 
-void levels(vector_pairs points) {
+void levels(vector_pairs points, double d) {
 	// функция принимает на вход пары точек
 	// и записывает полученные уровни в txt файл
 
@@ -80,7 +87,7 @@ void levels(vector_pairs points) {
 	}*/
 
 	double tmpx, tmpy, n;
-	double d = 0.08;
+	//double d = 0.08;
 	for (int i = 1; i < len - 1; i++) {
 		tmpx = points[i + 1].second - points[i - 1].second;
 		tmpy = -(points[i + 1].first - points[i - 1].first);
@@ -187,14 +194,14 @@ void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points) {
 }
 
 
-double det_Matrix(const Matrix& M) {
+/*double det_Matrix(const Matrix& M) {
 	// находит определитель квадратной матрицы
 }
 
 
 Matrix inverse_Matrix(const Matrix& M) {
 	// возвращает обратную матрицу
-}
+}*/
 
 
 int main(void) {
@@ -206,15 +213,16 @@ int main(void) {
 	vector<double> y = {  0,  0.6,  0.8,  0.9, 0.6,  1.0, 1.0, 1.0, 0.0, 0.9, 0.8 };
 
 	int len = x.size();
-	vector_pairs sorted_point = sort(x, y);
+	double d; //"диаметр" фигуры - максимальное расстояние между точками, 0.04*d - расстояние до точек уровней 
+	vector_pairs sorted_point = sort(x, y, &d);
 
-	levels(sorted_point);
+	levels(sorted_point, d);
 	system("python plot_3L.py");		// отрисовка
 	
 	Matrix M(len, vector<double>(6));
 	fill_3L_Matrix_2nd_power(M, sorted_point);
 
 	sorted_point.clear();
-
+	//cin.get(); cin.get();
 	return(0);
 }
