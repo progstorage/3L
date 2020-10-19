@@ -3,6 +3,7 @@
 #include <cmath> 
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -71,13 +72,13 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 }
 
 
-void levels(vector_pairs points, double d) {
+void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 	// функция принимает на вход пары точек
 	// и записывает полученные уровни в txt файл
 
 	int len = points.size();
-	vector_pairs l1(len);
-	vector_pairs l3(len);
+	//vector_pairs l1(len);
+	//vector_pairs l3(len);
 
 	//double **l1 = new double*[len];
 	//double **l3 = new double*[len];
@@ -132,9 +133,10 @@ void print_Matrix(const Matrix& M) {
 	// вывести матрицу
 	for (const auto& v : M) {
 		for (const auto& e : v)
-			cout << e << " ";
+			cout << e << "\t";
 		cout << endl;
 	}
+	cin.get(); cin.get();
 }
 
 
@@ -181,18 +183,41 @@ Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 }
 
 
-void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points) {
+void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
 	// заполняет матрицу (2я степень неявной функции)
-	for (int i = 0; i < M.size(); i++) {
+	//Матрица вида 
+	//[M-]
+	//[M0]
+	//[M+]
+	for (int i = 0; i < M.size()/3; i++) {
 		M[i][0] = 1;
-		M[i][1] = points[i].first;
-		M[i][2] = points[i].second;
-		M[i][3] = points[i].first * points[i].first;
-		M[i][4] = points[i].first * points[i].second;
-		M[i][5] = points[i].second * points[i].second;
+		M[i][1] = l1[i].first;
+		M[i][2] = l1[i].second;
+		M[i][3] = l1[i].first * l1[i].first;
+		M[i][4] = l1[i].first * l1[i].second;
+		M[i][5] = l1[i].second * l1[i].second;
+	}
+	int j = 0;
+	for (int i = M.size() / 3; i < 2 * M.size() / 3; i++) {
+		M[i][0] = 1;
+		M[i][1] = points[j].first;
+		M[i][2] = points[j].second;
+		M[i][3] = points[j].first * points[j].first;
+		M[i][4] = points[j].first * points[j].second;
+		M[i][5] = points[j].second * points[j].second;
+		j++;
+	}
+	j = 0;
+	for (int i = 2 * M.size() / 3; i < M.size(); i++) {
+		M[i][0] = 1;
+		M[i][1] = l3[j].first;
+		M[i][2] = l3[j].second;
+		M[i][3] = l3[j].first * l3[j].first;
+		M[i][4] = l3[j].first * l3[j].second;
+		M[i][5] = l3[j].second * l3[j].second;
+		j++;
 	}
 }
-
 
 /*double det_Matrix(const Matrix& M) {
 	// находит определитель квадратной матрицы
@@ -203,8 +228,8 @@ Matrix inverse_Matrix(const Matrix& M) {
 	// находит обратную матрицу
 	
 	// проверка определителя (по идее лучше генерировать exception)
-	if (det_Matrix(M) == 0)
-		return M;
+	//if (det_Matrix(M) == 0)
+	//	return M;
 	
 	int matrix_size = M.size();
 	Matrix solve_matrix(matrix_size, vector<double>(matrix_size * 2));
@@ -274,26 +299,63 @@ Matrix inverse_Matrix(const Matrix& M) {
 	return ans;
 }
 
+void solve_system(Matrix& M, double d) {
+	// Решает систему уравнений - находит коэффициенты многочлена и записывает их в файл "coef.txt"
+	double len = M.size();
+	Matrix b(1, vector<double>(len));
+	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
+	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
+	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
+	Matrix a = mult_Matrix( mult_Matrix( inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+	
+	ofstream outfile("coef.txt");
+	for (int i = 0; i < 6; i++) {
+		outfile << fixed << a[i][0] << endl;
+	}
+	outfile.close();
+}
+
+void split(string line, double* x, double* y) {
+	auto pos = line.find(";");
+	if (pos != string::npos) {
+		*x = stod(line.substr(0, pos));
+		*y = stod(line.substr(pos + 1));
+	}
+}
 
 int main(void) {
-	//            [-1, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0] 
-	//            [ 0,  0.6,  0.8,  0.9,  1.0, 1.0, 1.0, 0.9, 0.8, 0.6, 0.0]
 
 	// test data
-	vector<double> x = { -1, -0.8, -0.6, -0.4, 0.8, -0.2, 0.0, 0.2, 1.0, 0.4, 0.6 };
-	vector<double> y = {  0,  0.6,  0.8,  0.9, 0.6,  1.0, 1.0, 1.0, 0.0, 0.9, 0.8 };
+	vector<double> x; //= { -1, -0.8, -0.6, -0.4, 0.8, -0.2, 0.0, 0.2, 1.0, 0.4, 0.6 };
+	vector<double> y; //= {  0,  0.6,  0.8,  0.9, 0.6,  1.0, 1.0, 1.0, 0.0, 0.9, 0.8 };
+	string line;
+	double tmpx;
+	double tmpy;
+	ifstream in("data.txt");  //Чтение данных из файла
+	if (in.is_open()) {
+		while (getline(in, line)) {
+			split(line, &tmpx, &tmpy);
+			x.push_back(tmpx);
+			y.push_back(tmpy);
+		}
+	}
+	in.close();     
 
 	int len = x.size();
-	double d; //"диаметр" фигуры - максимальное расстояние между точками, 0.04*d - расстояние до точек уровней 
+	double d;	//"диаметр" фигуры - максимальное расстояние между точками, 0.04*d - расстояние до точек уровней 
 	vector_pairs sorted_point = sort(x, y, &d);
 
-	levels(sorted_point, d);
+	vector_pairs l1(len);
+	vector_pairs l3(len);
+	levels(sorted_point, d, l1, l3);
+
 	system("python plot_3L.py");		// отрисовка
 	
-	Matrix M(len, vector<double>(6));
-	fill_3L_Matrix_2nd_power(M, sorted_point);
+	Matrix M(len*3, vector<double>(6));
+	fill_3L_Matrix_2nd_power(M, sorted_point, l1, l3);
+
+	solve_system(M, d);
 
 	sorted_point.clear();
-	//cin.get(); cin.get();
 	return(0);
 }
