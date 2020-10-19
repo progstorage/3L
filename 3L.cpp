@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
@@ -218,17 +218,50 @@ void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points, const vecto
 	}
 }
 
-/*double det_Matrix(const Matrix& M) {
-	// находит определитель квадратной матрицы
+//определитель Метод Гаусса
+double det_Matrix(const Matrix& M) {
+	const double EPS = 1E-9;
+	int n = M.size();
+	Matrix N(M);	//Копирование матрицы
+	double det = 1;
+	for (int i = 0; i < n; ++i) {
+		int k = i;
+		for (int j = i + 1; j < n; ++j) {
+			if (abs(N[j][i]) > abs(N[k][i]))
+				k = j;
+		}
+		if (abs(N[k][i]) < EPS) {
+			det = 0;
+			throw "Determinant of a matrix = 0";
+		}
+		swap(N[i], N[k]);
+		if (i != k)
+			det = -det;
+		det *= N[i][i];
+		for (int j = i + 1; j < n; ++j) {
+			N[i][j] /= N[i][i];
+		}
+		for (int j = 0; j < n; ++j)
+			if (j != i && abs(N[j][i]) > EPS)
+				for (int k = i + 1; k < n; ++k)
+					N[j][k] -= N[i][k] * N[j][i];
+	}
+	return det;
 }
-*/
+
 
 Matrix inverse_Matrix(const Matrix& M) {
 	// находит обратную матрицу
-	
-	// проверка определителя (по идее лучше генерировать exception)
-	//if (det_Matrix(M) == 0)
-	//	return M;
+	try
+	{
+		det_Matrix(M);
+	}
+	catch (const char* exception)
+	{
+		cerr << "Error: " << exception << endl;
+		system("pause");
+		exit(EXIT_FAILURE);
+	}
 	
 	int matrix_size = M.size();
 	Matrix solve_matrix(matrix_size, vector<double>(matrix_size * 2));
