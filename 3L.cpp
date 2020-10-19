@@ -194,6 +194,77 @@ double det_Matrix(const Matrix& M) {
 
 Matrix inverse_Matrix(const Matrix& M) {
 	// возвращает обратную матрицу
+	
+	// проверка определителя (по идее лучше генерировать exception)
+	if (det_Matrix(M) == 0)
+		return M;
+	
+	int matrix_size = M.size();
+	Matrix solve_matrix(matrix_size, vector<double>(matrix_size * 2));
+	
+	for (int row = 0; row < matrix_size; row++) // инициализация рабочей матрицы
+		for (int col = 0; col < matrix_size * 2; col++)
+			solve_matrix[row][col] = (col < matrix_size) ? M[row][col] : (col == row + (matrix_size)) ? 1 : 0;
+
+	// Прямой ход
+	for (int iteration = 0; iteration < matrix_size; iteration++) { // номер итерации
+		if (solve_matrix[iteration][iteration] == 0) { // проверка ведущего элемента на 0
+			int tmp = iteration;
+			while (tmp < matrix_size) // поиск строки с ненулевым ведущим элементом
+				if (solve_matrix[tmp][iteration] == 0)
+					tmp++;
+				else
+					break;
+			if (tmp == matrix_size)
+				continue;
+			for (int col = 0; col < 2 * matrix_size; col++) // перестановка строки
+				swap(solve_matrix[tmp][col], solve_matrix[iteration][col]);
+		}
+
+		double K = solve_matrix[iteration][iteration];
+		for (int col = 0; col < 2 * matrix_size; col++) // преобразование ведущей строки
+			solve_matrix[iteration][col] = solve_matrix[iteration][col] / K;
+		
+		for (int row = iteration + 1; row < matrix_size; row++){ // преобразование остальных строк
+			double K = solve_matrix[row][iteration] / solve_matrix[iteration][iteration];
+			for (int col = 0; col < 2 * matrix_size; col++)
+				solve_matrix[row][col] = solve_matrix[row][col] - (solve_matrix[iteration][col] * K);
+		}
+	}
+
+	// Обратный ход
+	for (int iteration = matrix_size - 1; iteration > -1; iteration--) {
+
+		if (solve_matrix[iteration][iteration] == 0) {
+			int tmp = iteration;
+			while (tmp > -1)
+				if (solve_matrix[tmp][iteration] == 0)
+					tmp--;
+				else
+					break;
+			if (tmp == -1)
+				continue;
+			for (int col = 0; col < 2 * matrix_size; col++)
+				swap(solve_matrix[tmp][col], solve_matrix[iteration][col]);
+		}
+
+		double K = solve_matrix[iteration][iteration];
+		for (int col = 2 * matrix_size - 1; col > -1; col--)
+			solve_matrix[iteration][col] = solve_matrix[iteration][col] / K;
+
+		for (int row = iteration - 1; row > -1; row--)
+		{
+			double K = solve_matrix[row][iteration] / solve_matrix[iteration][iteration];
+			for (int col = 2 * matrix_size - 1; col > -1; col--) //j-номер столбца следующей строки после k
+				solve_matrix[row][col] = solve_matrix[row][col] - (solve_matrix[iteration][col] * K);
+		}
+	}
+
+	Matrix ans(matrix_size, vector<double>(matrix_size)); // матрица с ответом
+	for (int row = 0; row < matrix_size; row++) // заполнение матрицы с ответом
+		for (int col = 0; col < matrix_size; col++)
+			ans[row][col] = solve_matrix[row][col + matrix_size];
+	return ans;
 }
 
 
