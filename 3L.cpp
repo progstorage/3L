@@ -17,6 +17,7 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 
 	*d = 0;
 	int len = x.size();
+	
 	vector_pairs sorted_points(len);
 	sorted_points[0].first = x[0];
 	sorted_points[0].second = y[0];
@@ -25,8 +26,8 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 	/*double **sorted_point = new double*[len];
 	for (int i = 0; i < len; i++) {
 		sorted_point[i] = new double[2];
-	}*/
-	//int* flag = new int[len];
+	}
+	int* flag = new int[len];*/
 
 	for (int i = 0; i < len; i++) { 
 		flags[i] = 0;
@@ -44,7 +45,7 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 		tmp_x = x[i];
 		tmp_y = y[i];
 		if (flags[i] == 0) {
-			for (int j = 0; j < 11; j++) {
+			for (int j = 0; j < len; j++) {
 				if ((j != i) && (flags[j] == 0)) {
 					dist = sqrt((x[j] - tmp_x)*(x[j] - tmp_x) + (y[j] - tmp_y)*(y[j] - tmp_y));
 					dist1 = sqrt((x[j] - x[0])*(x[j] - x[0]) + (y[j] - y[0])*(y[j] - y[0]));
@@ -57,7 +58,6 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 						max_dist = dist1;
 					}
 				}
-				//else { continue; }
 			}
 			sorted_points[k + 1].first = x[min_dist_ind];
 			sorted_points[k + 1].second = y[min_dist_ind];
@@ -65,7 +65,6 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 			i = min_dist_ind;
 			min_dist = 100;
 		}
-		//else { continue; }
 	}
 	*d = max_dist*0.04;
 	return sorted_points;
@@ -77,6 +76,7 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 	// и записывает полученные уровни в txt файл
 
 	int len = points.size();
+	
 	//vector_pairs l1(len);
 	//vector_pairs l3(len);
 
@@ -112,9 +112,8 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 			l3[len - 1].second = points[len - 1].second - d * tmpy;
 		}
 	}
+
 	ofstream outfile ("out.txt");
-	//fstream f;
-	//f.open("out.txt", fstream::in | fstream::out);
 	for (int i = 0; i < len; i++) {
 		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
 	}
@@ -332,6 +331,7 @@ int main(void) {
 	double tmpx;
 	double tmpy;
 	ifstream in("data.txt");  //Чтение данных из файла
+	//ifstream in("array.txt");
 	if (in.is_open()) {
 		while (getline(in, line)) {
 			split(line, &tmpx, &tmpy);
@@ -348,13 +348,13 @@ int main(void) {
 	vector_pairs l1(len);
 	vector_pairs l3(len);
 	levels(sorted_point, d, l1, l3);
-
-	system("python plot_3L.py");		// отрисовка
 	
 	Matrix M(len*3, vector<double>(6));
 	fill_3L_Matrix_2nd_power(M, sorted_point, l1, l3);
 
 	solve_system(M, d);
+
+	system("python plot_3L.py");		// отрисовка
 
 	sorted_point.clear();
 	return(0);
