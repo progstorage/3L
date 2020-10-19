@@ -232,7 +232,7 @@ double det_Matrix(const Matrix& M) {
 		}
 		if (abs(N[k][i]) < EPS) {
 			det = 0;
-			throw "Determinant of a matrix = 0";
+			return det;
 		}
 		swap(N[i], N[k]);
 		if (i != k)
@@ -254,7 +254,7 @@ Matrix inverse_Matrix(const Matrix& M) {
 	// находит обратную матрицу
 	try
 	{
-		det_Matrix(M);
+		if(det_Matrix(M) == 0) throw "Determinant of a matrix = 0";
 	}
 	catch (const char* exception)
 	{
