@@ -32,6 +32,5 @@ plt.show()
 
 with open("array.txt", "w") as f1:
     for  line in range(len(x)):
-        f1.write(str(x[line]) + '; ')
-        f1.write(str(y[line]) + '\n')
+        f1.write(str(x[line]) + ';' + str(y[line]) + '\n')
 f1.close ()
