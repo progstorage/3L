@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿//#include "stdafx.h"
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
@@ -17,7 +17,7 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 
 	*d = 0;
 	int len = x.size();
-	
+
 	vector_pairs sorted_points(len);
 	sorted_points[0].first = x[0];
 	sorted_points[0].second = y[0];
@@ -29,7 +29,7 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 	}
 	int* flag = new int[len];*/
 
-	for (int i = 0; i < len; i++) { 
+	for (int i = 0; i < len; i++) {
 		flags[i] = 0;
 	}
 	double dist = 0;
@@ -66,7 +66,7 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 			min_dist = 100;
 		}
 	}
-	*d = max_dist*0.04;
+	*d = max_dist * 0.04;
 	return sorted_points;
 }
 
@@ -76,7 +76,7 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 	// и записывает полученные уровни в txt файл
 
 	int len = points.size();
-	
+
 	//vector_pairs l1(len);
 	//vector_pairs l3(len);
 
@@ -113,7 +113,7 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 		}
 	}
 
-	ofstream outfile ("out.txt");
+	ofstream outfile("out.txt");
 	for (int i = 0; i < len; i++) {
 		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
 	}
@@ -148,7 +148,7 @@ Matrix transpose_Matrix(const Matrix& M) {
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
 			N[j][i] = M[i][j];
-	
+
 	return N;
 }
 
@@ -173,11 +173,11 @@ Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 			for (int k = 0; k < m2; k++) {
 				//cout << "k: " << k << endl;
 				tmp += M[i][k] * N[k][j];
-			}			
+			}
 			K[i][j] = tmp;
 		}
 	}
-	
+
 	return K;
 }
 
@@ -188,7 +188,7 @@ void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points, const vecto
 	//[M-]
 	//[M0]
 	//[M+]
-	for (int i = 0; i < M.size()/3; i++) {
+	for (int i = 0; i < M.size() / 3; i++) {
 		M[i][0] = 1;
 		M[i][1] = l1[i].first;
 		M[i][2] = l1[i].second;
@@ -254,7 +254,7 @@ Matrix inverse_Matrix(const Matrix& M) {
 	// находит обратную матрицу
 	try
 	{
-		if(det_Matrix(M) == 0) throw "Determinant of a matrix = 0";
+		if (det_Matrix(M) == 0) throw "Determinant of a matrix = 0";
 	}
 	catch (const char* exception)
 	{
@@ -262,10 +262,10 @@ Matrix inverse_Matrix(const Matrix& M) {
 		system("pause");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	int matrix_size = M.size();
 	Matrix solve_matrix(matrix_size, vector<double>(matrix_size * 2));
-	
+
 	for (int row = 0; row < matrix_size; row++) // инициализация рабочей матрицы
 		for (int col = 0; col < matrix_size * 2; col++)
 			solve_matrix[row][col] = (col < matrix_size) ? M[row][col] : (col == row + (matrix_size)) ? 1 : 0;
@@ -288,8 +288,8 @@ Matrix inverse_Matrix(const Matrix& M) {
 		double K = solve_matrix[iteration][iteration];
 		for (int col = 0; col < 2 * matrix_size; col++) // преобразование ведущей строки
 			solve_matrix[iteration][col] = solve_matrix[iteration][col] / K;
-		
-		for (int row = iteration + 1; row < matrix_size; row++){ // преобразование остальных строк
+
+		for (int row = iteration + 1; row < matrix_size; row++) { // преобразование остальных строк
 			double K = solve_matrix[row][iteration] / solve_matrix[iteration][iteration];
 			for (int col = 0; col < 2 * matrix_size; col++)
 				solve_matrix[row][col] = solve_matrix[row][col] - (solve_matrix[iteration][col] * K);
@@ -338,8 +338,8 @@ void solve_system(Matrix& M, double d) {
 	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
 	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
-	Matrix a = mult_Matrix( mult_Matrix( inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
-	
+	Matrix a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+
 	ofstream outfile("coef.txt");
 	for (int i = 0; i < 6; i++) {
 		outfile << fixed << a[i][0] << endl;
@@ -363,7 +363,7 @@ int main(void) {
 	string line;
 	double tmpx;
 	double tmpy;
-	ifstream in("data.txt");  //Чтение данных из файла
+	ifstream in("tests/in/in_1.txt");  //Чтение данных из файла
 	//ifstream in("array.txt");
 	if (in.is_open()) {
 		while (getline(in, line)) {
@@ -372,7 +372,7 @@ int main(void) {
 			y.push_back(tmpy);
 		}
 	}
-	in.close();     
+	in.close();
 
 	int len = x.size();
 	double d;	//"диаметр" фигуры - максимальное расстояние между точками, 0.04*d - расстояние до точек уровней 
@@ -381,8 +381,8 @@ int main(void) {
 	vector_pairs l1(len);
 	vector_pairs l3(len);
 	levels(sorted_point, d, l1, l3);
-	
-	Matrix M(len*3, vector<double>(6));
+
+	Matrix M(len * 3, vector<double>(6));
 	fill_3L_Matrix_2nd_power(M, sorted_point, l1, l3);
 
 	solve_system(M, d);
