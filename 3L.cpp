@@ -1,64 +1,60 @@
-﻿//#include "stdafx.h"
+#include "stdafx.h"
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <vector>
 
+
 using namespace std;
+namespace fs = experimental::filesystem;
 using vector_pairs = vector<pair<double, double>>;
 using Matrix = vector<vector<double>>;
 
 
+double diff(pair<double, double> pk, pair<double, double> pk_1) {
+	//производная в точке pk = (x[k], y[k]) 
+	//pk_1 = (x[k+1], y[k+1])
+	return ((pk_1.second - pk.second) / (pk_1.first - pk.first));
+}
+
 vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
-	//функция сортирует исходные координаты в смысле евклидовой метрики
+	// функция сортирует исходные координаты в смысле евклидовой метрики
 	// и возвращает вектор пар
 
 	*d = 0;
 	int len = x.size();
-
+	
 	vector_pairs sorted_points(len);
 	sorted_points[0].first = x[0];
 	sorted_points[0].second = y[0];
 	vector<int> flags(len);
 
-	/*double **sorted_point = new double*[len];
-	for (int i = 0; i < len; i++) {
-		sorted_point[i] = new double[2];
-	}
-	int* flag = new int[len];*/
-
-	for (int i = 0; i < len; i++) {
+	for (int i = 0; i < len; i++) { 
 		flags[i] = 0;
 	}
-	double dist = 0;
-	double dist1 = 0; //расстояние до первой точки
+	double dist; //расстояние до первой точки
 	double min_dist = sqrt((x[1] - x[0])*(x[1] - x[0]) + (y[1] - y[0])*(y[1] - y[0]));
 	double max_dist = min_dist;
 	int min_dist_ind = 0;
+	double dydx;
 	int i = 0;
-	double tmp_x = 0;
-	double tmp_y = 0;
 	for (int k = 0; k < len - 1; k++) {
-		//cout << "i = " << i << endl;
-		tmp_x = x[i];
-		tmp_y = y[i];
 		if (flags[i] == 0) {
 			for (int j = 0; j < len; j++) {
 				if ((j != i) && (flags[j] == 0)) {
-					dist = sqrt((x[j] - tmp_x)*(x[j] - tmp_x) + (y[j] - tmp_y)*(y[j] - tmp_y));
-					dist1 = sqrt((x[j] - x[0])*(x[j] - x[0]) + (y[j] - y[0])*(y[j] - y[0]));
-					//cout << "j = " << j << ' ' << dist << endl;
+					dist = sqrt((x[j] - x[i])*(x[j] - x[i]) + (y[j] - y[i])*(y[j] - y[i]));
 					if (dist <= min_dist) {
 						min_dist = dist;
 						min_dist_ind = j;
 					}
-					if (dist1 >= max_dist) {
-						max_dist = dist1;
-					}
+					if (dist >= max_dist) { max_dist = dist; }
 				}
 			}
+			dydx = diff(sorted_points[k], sorted_points[k+1]);
+			//cout << k << "\t(" << sorted_points[k].first << ", " << sorted_points[k].second << ")\t" << dydx << endl;
 			sorted_points[k + 1].first = x[min_dist_ind];
 			sorted_points[k + 1].second = y[min_dist_ind];
 			flags[i] = 1;
@@ -66,7 +62,7 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 			min_dist = 100;
 		}
 	}
-	*d = max_dist * 0.04;
+	*d = max_dist*0.04;
 	return sorted_points;
 }
 
@@ -77,18 +73,7 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 
 	int len = points.size();
 
-	//vector_pairs l1(len);
-	//vector_pairs l3(len);
-
-	//double **l1 = new double*[len];
-	//double **l3 = new double*[len];
-	/*for (int i = 0; i < len; i++) {
-		l1[i] = new double[2];
-		l3[i] = new double[2];
-	}*/
-
 	double tmpx, tmpy, n;
-	//double d = 0.08;
 	for (int i = 1; i < len - 1; i++) {
 		tmpx = points[i + 1].second - points[i - 1].second;
 		tmpy = -(points[i + 1].first - points[i - 1].first);
@@ -118,13 +103,6 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
 	}
 	outfile.close();
-	/*for (int i = 0; i < 10; i++)
-	{
-		delete[] l1[i];
-		delete[] l3[i];
-	}
-	delete[] l1;
-	delete[] l3;*/
 }
 
 
@@ -148,7 +126,6 @@ Matrix transpose_Matrix(const Matrix& M) {
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
 			N[j][i] = M[i][j];
-
 	return N;
 }
 
@@ -347,36 +324,74 @@ void solve_system(Matrix& M, double d) {
 	outfile.close();
 }
 
-void split(string line, double* x, double* y) {
-	auto pos = line.find(";");
-	if (pos != string::npos) {
-		*x = stod(line.substr(0, pos));
-		*y = stod(line.substr(pos + 1));
+class Menu {
+public:
+	string dir;
+	vector<string> files;
+	int n;
+	vector<double> x;
+	vector<double> y;
+	string test_file; 
+
+	Menu(string path_to_dir) {
+		dir = path_to_dir;
+		get_files(path_to_dir);
+		print_menu();
+		select_file();
+		read_file();
 	}
-}
-
-int main(void) {
-
-	// test data
-	vector<double> x; //= { -1, -0.8, -0.6, -0.4, 0.8, -0.2, 0.0, 0.2, 1.0, 0.4, 0.6 };
-	vector<double> y; //= {  0,  0.6,  0.8,  0.9, 0.6,  1.0, 1.0, 1.0, 0.0, 0.9, 0.8 };
-	string line;
-	double tmpx;
-	double tmpy;
-	ifstream in("tests/in/in_1.txt");  //Чтение данных из файла
-	//ifstream in("array.txt");
-	if (in.is_open()) {
-		while (getline(in, line)) {
-			split(line, &tmpx, &tmpy);
-			x.push_back(tmpx);
-			y.push_back(tmpy);
+	void get_files(string path_to_dir) {
+		for (const auto & f : fs::directory_iterator(path_to_dir)) {
+			files.push_back(f.path().string());
 		}
 	}
-	in.close();
+	void print_menu() {
+		cout << "Directory: " << dir << endl;
+		cout << "File" << "\t\t\t" << "N" << endl;
+		for (int i = 0; i < files.size(); i++) {
+			cout << files[i] << "\t" << i+1 << endl;
+		}
+	}
+	void select_file() {
+		cout << endl << "Enter file number:";
+		cin >> n;
+		if (n <= files.size()){ 
+			test_file = files[n-1]; 
+		} else{
+			cout << endl << "Error! Try again!";
+			select_file();
+		}
+	}
+	void split(string line, double* x, double* y) {
+		auto pos = line.find(";");
+		if (pos != string::npos) {
+			*x = stod(line.substr(0, pos));
+			*y = stod(line.substr(pos + 1));
+		}
+	}
+	void read_file() {
+		string line;
+		double tmpx;
+		double tmpy;
+		ifstream in(test_file);		//Чтение данных из файла test_file
+		if (in.is_open()) {
+			while (getline(in, line)) {
+				split(line, &tmpx, &tmpy);
+				x.push_back(tmpx);
+				y.push_back(tmpy);
+			}
+		}
+		in.close();
+	}
+};
 
-	int len = x.size();
+int main(void) {
+	string path = "tests/in/";
+	Menu ME(path); //Меню выбора тесового файла с координатами точек
+
+	int len = ME.x.size();
 	double d;	//"диаметр" фигуры - максимальное расстояние между точками, 0.04*d - расстояние до точек уровней 
-	vector_pairs sorted_point = sort(x, y, &d);
+	vector_pairs sorted_point = sort(ME.x, ME.y, &d);
 
 	vector_pairs l1(len);
 	vector_pairs l3(len);
@@ -386,9 +401,21 @@ int main(void) {
 	fill_3L_Matrix_2nd_power(M, sorted_point, l1, l3);
 
 	solve_system(M, d);
-
-	system("python plot_3L.py");		// отрисовка
+	
+	ME.test_file = "python plot_3L.py " + ME.test_file;
+	char plot[50];
+	strcpy_s(plot, ME.test_file.c_str());
+	system(plot);		// отрисовка
 
 	sorted_point.clear();
+
+	/*for (int i = 0; i < sorted_point.size(); i++) {
+	cout << sorted_point[i].first << ',';
+	}
+	cout << endl;
+	for (int i = 0; i < sorted_point.size(); i++) {
+	cout << sorted_point[i].second << ',';
+	}*/
+
 	return(0);
 }

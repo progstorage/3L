@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from sys import argv
 
-def data():
+def data(file):
 	'''x = [-1]
 	y = [0]
 	i = -0.8
@@ -14,7 +15,7 @@ def data():
 			f.write(str(x[i])+';' + str(y[i])+'\n')'''
 	x = []
 	y = []
-	with open('data.txt', 'r') as f:
+	with open(file, 'r') as f:
 		for line in f:
 			x.append(float(line.split(';')[0]))
 			y.append(float(line.split(';')[1]))
@@ -56,11 +57,11 @@ def plot_g(x, y):
 	F = f(X, Y)
 	plt.contour(X, Y, F, [0], colors = ['red'])
 
-	plt.gca().set_aspect('equal', adjustable='box')
-	plt.draw()
+	#plt.gca().set_aspect('equal', adjustable='box')
+	#plt.draw()
 	plt.show()
 	
 
 if __name__ == '__main__':
-	x, y = data();
+	x, y = data(argv[1]);
 	plot_g(x, y);
