@@ -1,11 +1,11 @@
-#include "./source/3L.h"
+п»ї#include "./source/3L.h"
 
 int main(void) {
 	string path = "tests/in/";
-	Menu ME(path); //Меню выбора тесового файла с координатами точек
+	Menu ME(path); //РњРµРЅСЋ РІС‹Р±РѕСЂР° С‚РµСЃРѕРІРѕРіРѕ С„Р°Р№Р»Р° СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё С‚РѕС‡РµРє
 
 	int len = ME.x.size();
-	double d;	//"диаметр" фигуры - максимальное расстояние между точками, 0.04*d - расстояние до точек уровней 
+	double d;	//"РґРёР°РјРµС‚СЂ" С„РёРіСѓСЂС‹ - РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ С‚РѕС‡РєР°РјРё, 0.04*d - СЂР°СЃСЃС‚РѕСЏРЅРёРµ РґРѕ С‚РѕС‡РµРє СѓСЂРѕРІРЅРµР№ 
 	vector_pairs sorted_point = sort(ME.x, ME.y, &d);
 
 	vector_pairs l1(len);
@@ -21,7 +21,7 @@ int main(void) {
 		ME.test_file = "python plot/plot_3L.py " + ME.test_file;
 		char plot[50];
 		strcpy_s(plot, ME.test_file.c_str());
-		system(plot);		// отрисовка
+		system(plot);		// РѕС‚СЂРёСЃРѕРІРєР°
 		ME.start();
 	}
 
