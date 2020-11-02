@@ -18,7 +18,7 @@ int main(void) {
 	solve_system(M, d);
 
 	while (ME.to_draw) {
-		ME.test_file = "python plot_3L.py " + ME.test_file;
+		ME.test_file = "python plot/plot_3L.py " + ME.test_file;
 		char plot[50];
 		strcpy_s(plot, ME.test_file.c_str());
 		system(plot);		// отрисовка
