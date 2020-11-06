@@ -88,11 +88,12 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 		}
 	}
 
-	ofstream outfile("out.txt");
+	ofstream outfile("out.txt", ios::out | ios::trunc);
 	for (int i = 0; i < len; i++) {
 		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
 	}
 	outfile.close();
+	Sleep(1000);
 }
 
 
@@ -309,11 +310,12 @@ void solve_system(Matrix& M, double d) {
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
 	Matrix a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
 
-	ofstream outfile("coef.txt");
+	ofstream outfile("coef.txt", ios::out | ios::trunc);
 	for (int i = 0; i < 6; i++) {
 		outfile << fixed << a[i][0] << endl;
 	}
 	outfile.close();
+	Sleep(1000);
 }
 
 

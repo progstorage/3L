@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include "windows.h"
 
 using namespace std;
 namespace fs = experimental::filesystem;
