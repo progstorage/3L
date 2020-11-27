@@ -2,7 +2,7 @@ from sys import argv
 import os
 
 
-def f(n):
+def f():
 	try:
 		for file in os.listdir("sorted_points"):
 			os.remove("sorted_points/"+file)
