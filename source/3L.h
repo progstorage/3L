@@ -1,5 +1,6 @@
 #pragma once
-//#include "stdafx.h"
+#include "stdafx.h"
+
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
@@ -30,6 +31,7 @@ void solve_system(Matrix&, double);
 
 class Menu {
 public:
+	int execution_method; //1 - старый метод соединения точек, 2 - новый метод с разделением точек на группы
 	string dir;
 	vector<string> files;
 	int n;
@@ -45,4 +47,5 @@ public:
 	void split(string, double*, double*);
 	void read_file();
 	void start();
+	void select_execution_method();
 };

@@ -9,12 +9,13 @@ double diff(pair<double, double> pk, pair<double, double> pk_1) {
 	return ((pk_1.second - pk.second) / (pk_1.first - pk.first));
 }
 
+vector<vector_pairs> points_clusters_array;//вектор групп точек
+int points_clusters_count = 0;//количество групп точек
 
-vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
+int old_sort(const vector<double>& x, const vector<double>& y, double *d) {
 	// функция сортирует исходные координаты в смысле евклидовой метрики
 	// и возвращает вектор пар
 
-	*d = 0;
 	int len = x.size();
 
 	vector_pairs sorted_points(len);
@@ -43,8 +44,6 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 					if (dist >= max_dist) { max_dist = dist; }
 				}
 			}
-			dydx = diff(sorted_points[k], sorted_points[k + 1]);
-			//cout << k << "\t(" << sorted_points[k].first << ", " << sorted_points[k].second << ")\t" << dydx << endl;
 			sorted_points[k + 1].first = x[min_dist_ind];
 			sorted_points[k + 1].second = y[min_dist_ind];
 			flags[i] = 1;
@@ -53,13 +52,117 @@ vector_pairs sort(const vector<double>& x, const vector<double>& y, double *d) {
 		}
 	}
 	*d = max_dist * 0.04;
-	return sorted_points;
+
+	points_clusters_array.push_back(sorted_points);//отсортированная группа точек добавляется в массив групп
+	points_clusters_count++;
+
+	ofstream outfile("sorted_points.txt", ios::out | ios::trunc);
+	for (int i = 0; i < len; i++) {
+		outfile << fixed << sorted_points[i].first << "," << sorted_points[i].second << endl;
+	}
+
+	return 0;
 }
 
 
-void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
+int sort_method_2(const vector<double>& x, const vector<double>& y, double *d) {
+	// функция сортирует исходные координаты в смысле евклидовой метрики
+	// если расстояние до следующей точки "слишком большое" (в данном случае - больше расстояния до первой точки),
+	// то все точки разбиваются на отдельные группы, в которых расстояния от каждой точки до следующей не превышает этого значения
+	// => формируется глобальный вектор отсортированных векторов пар, а также каждая группа точек сохраняется в файл {число}.txt
+
+	*d = 0;
+	int len = x.size();
+
+	vector_pairs sorted_points(len);
+	sorted_points[0].first = x[0];
+	sorted_points[0].second = y[0];
+	vector<int> flags(len);
+
+	for (int i = 0; i < len; i++) {
+		flags[i] = 0;
+	}
+	double dist, dist_to_fitrs;
+	double min_dist = sqrt((x[1] - x[0])*(x[1] - x[0]) + (y[1] - y[0])*(y[1] - y[0]));
+	double max_dist = min_dist;
+	int min_dist_ind = 0;
+	int i = 0;
+	int retflag;
+	string type = ".txt";
+	string dir = "sorted_points/";
+	for (int k = 0; k < len - 1; k++) {
+		if (flags[i] == 0) {
+			flags[i] = 1;
+			for (int j = 0; j < len; j++) {
+				if ((j != i) && (flags[j] == 0)) {
+					retflag = 1;//если нашлась точка, в которой еще не были
+					dist = sqrt((x[j] - x[i])*(x[j] - x[i]) + (y[j] - y[i])*(y[j] - y[i]));
+					if (dist <= min_dist) {
+						min_dist = dist;
+						min_dist_ind = j;
+					}
+					if (dist >= max_dist) { max_dist = dist; }
+				}
+			}
+			dist_to_fitrs = sqrt((x[min_dist_ind] - x[0])*(x[min_dist_ind] - x[0]) + (y[min_dist_ind] - y[0])*(y[min_dist_ind] - y[0]));
+			if (min_dist <= dist_to_fitrs) {
+				sorted_points[k + 1].first = x[min_dist_ind]; 
+				sorted_points[k + 1].second = y[min_dist_ind];
+				i = min_dist_ind;
+				min_dist = 100;
+				retflag = 0;
+			}
+			else {//если расстояние до следующей точки больше, чем расстояние до первой точки (вообще говоря, если больше диаметра группы,
+				  //но как определить диаметр группы пока не понятно
+				vector_pairs tmp_sort_points(k + 1);
+				for (int j = 0; j < k + 1; j++) {
+					tmp_sort_points[j] = sorted_points[j];
+				}
+				points_clusters_array.push_back(tmp_sort_points);//отсортированная группа точек добавляется в массив групп
+				points_clusters_count++;
+				auto name = dir + to_string(points_clusters_count) + type;
+				ofstream outfile(name, ios::out | ios::trunc);
+				for (int i = 0; i < k + 1; i++) {
+					outfile << fixed << sorted_points[i].first << "," << sorted_points[i].second << endl;
+				}
+
+				flags[i] = 1;
+				flags[min_dist_ind] = 1;
+				vector<double> new_x;//оставшиеся точки формируют новые массивы координат х и у
+				vector<double> new_y;
+				for (int i = 0; i < len; i++) {
+					if (flags[i] == 0) {
+						new_x.push_back(x[i]);
+						new_y.push_back(y[i]);
+					}
+				}
+
+				if (new_x.size() != 0) { sort_method_2(new_x, new_y, d); }//рекурсивный вызов функции для оставшихся точек
+				else { return 0; }
+			}
+		}
+	}
+	if (retflag != 1) {//если перебраны все точки
+		points_clusters_array.push_back(sorted_points);
+		points_clusters_count++;
+		auto name = dir + to_string(points_clusters_count) + type;
+		ofstream outfile(name, ios::out | ios::trunc);
+		for (int i = 0; i < sorted_points.size(); i++) {
+			outfile << fixed << sorted_points[i].first << "," << sorted_points[i].second << endl;
+		}
+		return 0;
+	}
+	*d = max_dist * 0.04;
+	return 0;
+}
+
+
+
+void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3, int num) {
 	// функция принимает на вход пары точек
 	// и записывает полученные уровни в txt файл
+	string type = ".txt";
+	string dir = "levels/";
 
 	int len = points.size();
 
@@ -88,12 +191,12 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3) {
 		}
 	}
 
-	ofstream outfile("out.txt", ios::out | ios::trunc);
+	auto name = dir + to_string(num) + type;
+	ofstream outfile(name, ios::out | ios::trunc);
 	for (int i = 0; i < len; i++) {
 		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
 	}
 	outfile.close();
-	Sleep(1000);
 }
 
 
@@ -301,8 +404,10 @@ Matrix inverse_Matrix(const Matrix& M) {
 }
 
 
-void solve_system(Matrix& M, double d) {
+void solve_system(Matrix& M, double d, int num) {
 	// Решает систему уравнений - находит коэффициенты многочлена и записывает их в файл "coef.txt"
+	string type = ".txt";
+	string dir = "coefs/";
 	double len = M.size();
 	Matrix b(1, vector<double>(len));
 	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
@@ -310,12 +415,12 @@ void solve_system(Matrix& M, double d) {
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
 	Matrix a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
 
-	ofstream outfile("coef.txt", ios::out | ios::trunc);
+	auto name = dir + to_string(num) + type;
+	ofstream outfile(name, ios::out | ios::trunc);
 	for (int i = 0; i < 6; i++) {
 		outfile << fixed << a[i][0] << endl;
 	}
 	outfile.close();
-	Sleep(1000);
 }
 
 
@@ -363,11 +468,16 @@ void Menu::select_file() {
 	cout << "\n-------------------------\n\n";
 }
 
+void Menu::select_execution_method() {
+	cout << endl << "Enter 1 - old method, 2 - new method:\t";
+	cin >> execution_method;
+}
 
 void Menu::start() {
 	print_menu();
 	select_file();
 	read_file();
+	select_execution_method();
 }
 
 
