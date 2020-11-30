@@ -207,7 +207,7 @@ void print_Matrix(const Matrix& M) {
 			cout << e << "\t";
 		cout << endl;
 	}
-	cin.get(); cin.get();
+	//cin.get(); cin.get();
 }
 
 
@@ -226,6 +226,8 @@ Matrix transpose_Matrix(const Matrix& M) {
 
 Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 	// перемножение двух матриц
+	//M = M1;
+	//N = N1;
 	int m1 = M.size();
 	int m2 = M[0].size();
 	int n1 = N.size();
@@ -253,12 +255,103 @@ Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 }
 
 
+Matrix generate_random_Matrix(const int n, const int m) {
+	// генерирует случайную матрицу размера n x m
+	Matrix res(n, vector<double>(m));
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			res[i][j] = (rand() % 10000 - 5000) / 100;
+	return res;
+}
+
+
+Matrix mult_Matrix_multithread(const Matrix& M, const Matrix& N) {
+	int m1 = M.size();
+	int m2 = M[0].size();
+	int n1 = N.size();
+	int n2 = N[0].size();
+	if (m2 != n1) {
+		cerr << "Wrong sizes!";
+		exit(0);
+	}
+	Matrix K(m1, vector<double>(n2));
+	
+	const int threadsNum = 4;
+	omp_set_num_threads(threadsNum);
+	int i, j, k;
+	
+#pragma omp parallel for shared(M, N, K) private(i, j, k)
+	for (i = 0; i < m1; i++) {
+		for (j = 0; j < n2; j++) {
+			K[i][j] = 0;
+			for (k = 0; k < n1; k++) {
+				K[i][j] += (M[i][k] * N[k][j]);
+			}
+		}
+	}
+	return K;
+}
+
+
+void solve_system(Matrix& M, double d, int num) {
+	// Решает систему уравнений - находит коэффициенты многочлена и записывает их в файл "coef.txt"
+	string type = ".txt";
+	string dir = "coefs/";
+	double len = M.size();
+	Matrix b(1, vector<double>(len));
+	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
+	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
+	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
+
+	Matrix a;
+
+#if TEST_MODE
+	clock_t start_1, end_1, start_2, end_2;
+	
+	// многопоточное умножение матрицы на вектор
+	start_1 = clock();
+	a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+	/*
+	// big-size matrix testing
+	int size_1 = 1000;
+	int size_2 = 20;
+	int size_3 = 400;
+	a = mult_Matrix_multithread(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
+	*/
+	end_1 = clock() - start_1;
+			
+	// однопоточное
+	start_2 = clock();
+	Matrix _a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+	//Matrix _a = mult_Matrix(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
+	end_2 = clock() - start_2;
+		
+	cout << "\nSingle-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC
+		<< "\nExecution time of multithreaded multiplication:\t" << end_2 / (double)CLOCKS_PER_SEC;
+	
+	if (_a == a)
+		cout << "\nBoth methods gave the same result!" << endl;
+	else
+		cout << "\nDifferent results, something went wrong!" << endl;
+#else
+	a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+#endif
+
+	auto name = dir + to_string(num) + type;
+	ofstream outfile(name, ios::out | ios::trunc);
+	for (int i = 0; i < 6; i++) {
+		outfile << fixed << a[i][0] << endl;
+	}
+	outfile.close();
+}
+
+
 void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
 	// заполняет матрицу (2я степень неявной функции)
-	//Матрица вида 
-	//[M-]
-	//[M0]
-	//[M+]
+	// Матрица вида 
+	// [M-]
+	// [M0]
+	// [M+]
 	for (int i = 0; i < M.size() / 3; i++) {
 		M[i][0] = 1;
 		M[i][1] = l1[i].first;
@@ -404,26 +497,6 @@ Matrix inverse_Matrix(const Matrix& M) {
 }
 
 
-void solve_system(Matrix& M, double d, int num) {
-	// Решает систему уравнений - находит коэффициенты многочлена и записывает их в файл "coef.txt"
-	string type = ".txt";
-	string dir = "coefs/";
-	double len = M.size();
-	Matrix b(1, vector<double>(len));
-	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
-	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
-	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
-	Matrix a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
-
-	auto name = dir + to_string(num) + type;
-	ofstream outfile(name, ios::out | ios::trunc);
-	for (int i = 0; i < 6; i++) {
-		outfile << fixed << a[i][0] << endl;
-	}
-	outfile.close();
-}
-
-
 Menu::Menu(string path_to_dir) {
 	dir = path_to_dir;
 	get_files(path_to_dir);
@@ -460,6 +533,7 @@ void Menu::select_file() {
 	}
 	else if (n == files.size() + 1) {
 		to_draw = false;
+		exit(0);
 	}
 	else {
 		cout << endl << "Error! Try again!";
