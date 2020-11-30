@@ -56,7 +56,7 @@ int old_sort(const vector<double>& x, const vector<double>& y, double *d) {
 	points_clusters_array.push_back(sorted_points);//отсортированная группа точек добавляется в массив групп
 	points_clusters_count++;
 
-	ofstream outfile("sorted_points.txt", ios::out | ios::trunc);
+	ofstream outfile("sorted_points/sorted_points.txt", ios::out | ios::trunc);
 	for (int i = 0; i < len; i++) {
 		outfile << fixed << sorted_points[i].first << "," << sorted_points[i].second << endl;
 	}
