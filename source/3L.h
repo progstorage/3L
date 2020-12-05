@@ -12,9 +12,10 @@
 #include <ctime>
 #include <omp.h>
 
-
-// 1 - тестовый режим; 0 - обычный
-#define TEST_MODE 1
+// 0 - обычный
+// 1 - тестовый режим
+// 2 - тестовый режим с большими матрицами
+#define TEST_MODE 2
 
 using namespace std;
 namespace fs = experimental::filesystem;
@@ -29,11 +30,18 @@ Matrix			mult_Matrix_multithread(const Matrix&, const Matrix&);
 Matrix			inverse_Matrix(const Matrix&);
 Matrix			generate_random_Matrix(const int, const int);
 void			fill_3L_Matrix_2nd_power(Matrix&, const vector_pairs&, const vector_pairs&, const vector_pairs&);
-void			levels(vector_pairs, double, vector_pairs&, vector_pairs&);
+void			levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
 void			print_Matrix(const Matrix&);
-void			solve_system(Matrix&, double);
+void			solve_system(Matrix&, double, int);
+void			fill_levels_multithread(double);
 double			det_Matrix(const Matrix&);
 double			diff(pair<double, double>, pair<double, double>);
+int				sort_method_2(const vector<double>&, const vector<double>&, double*);
+int				old_sort(const vector<double>&, const vector<double>&, double*);
+
+// global vars
+vector<vector_pairs>	points_clusters_array;		//вектор групп точек
+int						points_clusters_count = 0;	//количество групп точек
 
 
 class Menu {

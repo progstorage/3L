@@ -15,7 +15,7 @@ def draw(file):
 		plt.show()
 
 
-dir_name = '../in/'
+dir_name = 'in/'
 for _, _, files in os.walk(dir_name):
 	i = 0
 	for file in files:

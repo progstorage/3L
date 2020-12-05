@@ -9,10 +9,8 @@ double diff(pair<double, double> pk, pair<double, double> pk_1) {
 	return ((pk_1.second - pk.second) / (pk_1.first - pk.first));
 }
 
-vector<vector_pairs> points_clusters_array;//вектор групп точек
-int points_clusters_count = 0;//количество групп точек
 
-int old_sort(const vector<double>& x, const vector<double>& y, double *d) {
+int old_sort(const vector<double>& x, const vector<double>& y, double* d) {
 	// функция сортирует исходные координаты в смысле евклидовой метрики
 	// и возвращает вектор пар
 
@@ -65,7 +63,7 @@ int old_sort(const vector<double>& x, const vector<double>& y, double *d) {
 }
 
 
-int sort_method_2(const vector<double>& x, const vector<double>& y, double *d) {
+int sort_method_2(const vector<double>& x, const vector<double>& y, double* d) {
 	// функция сортирует исходные координаты в смысле евклидовой метрики
 	// если расстояние до следующей точки "слишком большое" (в данном случае - больше расстояния до первой точки),
 	// то все точки разбиваются на отдельные группы, в которых расстояния от каждой точки до следующей не превышает этого значения
@@ -158,7 +156,7 @@ int sort_method_2(const vector<double>& x, const vector<double>& y, double *d) {
 
 
 
-void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3, int num) {
+void levels(vector_pairs points, double d, vector_pairs& l1, vector_pairs& l3, int num) {
 	// функция принимает на вход пары точек
 	// и записывает полученные уровни в txt файл
 	string type = ".txt";
@@ -170,7 +168,7 @@ void levels(vector_pairs points, double d, vector_pairs &l1, vector_pairs &l3, i
 	for (int i = 1; i < len - 1; i++) {
 		tmpx = points[i + 1].second - points[i - 1].second;
 		tmpy = -(points[i + 1].first - points[i - 1].first);
-		n = sqrt((tmpx*tmpx + tmpy * tmpy));
+		n = sqrt((tmpx*tmpx + tmpy*tmpy));
 		tmpx = tmpx / n;
 		tmpy = tmpy / n;
 		l1[i].first = points[i].first + d * tmpx;
@@ -276,19 +274,18 @@ Matrix mult_Matrix_multithread(const Matrix& M, const Matrix& N) {
 	}
 	Matrix K(m1, vector<double>(n2));
 	
-	const int threadsNum = 4;
-	omp_set_num_threads(threadsNum);
 	int i, j, k;
 	
-#pragma omp parallel for shared(M, N, K) private(i, j, k)
-	for (i = 0; i < m1; i++) {
-		for (j = 0; j < n2; j++) {
-			K[i][j] = 0;
-			for (k = 0; k < n1; k++) {
-				K[i][j] += (M[i][k] * N[k][j]);
+	#pragma omp parallel for private(i, j, k) shared(M, N, K)
+		for (i = 0; i < m1; i++) {
+			for (j = 0; j < n2; j++) {
+				K[i][j] = 0;
+				for (k = 0; k < n1; k++) {
+					K[i][j] += (M[i][k] * N[k][j]);
+				}
 			}
 		}
-	}
+
 	return K;
 }
 
@@ -305,37 +302,49 @@ void solve_system(Matrix& M, double d, int num) {
 
 	Matrix a;
 
-#if TEST_MODE
-	clock_t start_1, end_1, start_2, end_2;
+	#if TEST_MODE == 1
+		clock_t start_1, end_1, start_2, end_2;
 	
-	// многопоточное умножение матрицы на вектор
-	start_1 = clock();
-	a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
-	/*
-	// big-size matrix testing
-	int size_1 = 1000;
-	int size_2 = 20;
-	int size_3 = 400;
-	a = mult_Matrix_multithread(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
-	*/
-	end_1 = clock() - start_1;
+		// многопоточное умножение матрицы на вектор
+		start_1 = clock();
+		a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));		
+		end_1 = clock() - start_1;
 			
-	// однопоточное
-	start_2 = clock();
-	Matrix _a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
-	//Matrix _a = mult_Matrix(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
-	end_2 = clock() - start_2;
+		// однопоточное
+		start_2 = clock();
+		Matrix _a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+		end_2 = clock() - start_2;
 		
-	cout << "\nSingle-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC
-		<< "\nExecution time of multithreaded multiplication:\t" << end_2 / (double)CLOCKS_PER_SEC;
+		cout << "\nSingle-threaded multiplication execution time:\t" << end_2 / (double)CLOCKS_PER_SEC
+			 << "\nMulti-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC;
 	
-	if (_a == a)
-		cout << "\nBoth methods gave the same result!" << endl;
-	else
-		cout << "\nDifferent results, something went wrong!" << endl;
-#else
-	a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
-#endif
+		if (_a == a)
+			cout << "\nBoth methods gave the same result!" << endl;
+		else
+			cout << "\nDifferent results, something went wrong!" << endl;
+	#elif TEST_MODE == 2
+		// big-size matrix testing
+		clock_t start_1, end_1, start_2, end_2;
+		int size_1 = 100;
+		int size_2 = 20;
+		int size_3 = 400;
+
+		// многопоточное умножение матрицы на вектор
+		start_1 = clock();
+		a = mult_Matrix_multithread(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
+		end_1 = clock() - start_1;
+
+		// однопоточное
+		start_2 = clock();
+		Matrix _a = mult_Matrix(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
+		end_2 = clock() - start_2;
+
+		cout << "\nSingle-threaded multiplication execution time:\t" << end_2 / (double)CLOCKS_PER_SEC
+			 << "\nMulti-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC;
+		cout << endl;
+	#else
+		a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+	#endif
 
 	auto name = dir + to_string(num) + type;
 	ofstream outfile(name, ios::out | ios::trunc);
@@ -345,6 +354,69 @@ void solve_system(Matrix& M, double d, int num) {
 	outfile.close();
 }
 
+
+void fill_levels_multithread(double d) {
+	int i;
+	vector_pairs l1, l3;
+	Matrix M;
+
+	#if TEST_MODE
+		clock_t start_1, end_1, start_2, end_2;
+		start_1 = clock();
+
+		// многопоточное создание уровней
+		#pragma omp parallel for private(i) shared(points_clusters_array, l1, l3)
+			for (i = 0; i < points_clusters_count; i++) {
+				l1.resize(points_clusters_array[i].size());
+				l3.resize(points_clusters_array[i].size());
+
+				levels(points_clusters_array[i], d, l1, l3, i + 1);
+
+				M.resize(points_clusters_array[i].size() * 3, vector<double>(6));
+				fill_3L_Matrix_2nd_power(M, points_clusters_array[i], l1, l3);
+				solve_system(M, d, i + 1);
+
+				l1.clear();
+				l3.clear();
+			}
+		end_1 = clock() - start_1;
+
+		// однопоточное
+		start_2 = clock();
+		for (int j = 0; j < points_clusters_count; j++) {
+			l1.resize(points_clusters_array[j].size());
+			l3.resize(points_clusters_array[j].size());
+			levels(points_clusters_array[j], d, l1, l3, j + 1);
+
+			M.resize(points_clusters_array[j].size() * 3, vector<double>(6));
+			fill_3L_Matrix_2nd_power(M, points_clusters_array[j], l1, l3);
+			solve_system(M, d, j + 1);
+
+			l1.clear();
+			l3.clear();
+		}
+		end_2 = clock() - start_2;
+
+		cout << "\nSingle-threaded level creation time:\t" << end_2 / (double)CLOCKS_PER_SEC
+			 << "\nMulti-threaded level creation time:\t" << end_1 / (double)CLOCKS_PER_SEC;
+
+	#else
+		#pragma omp parallel for private(i) shared(points_clusters_array, l1, l3)
+			for (i = 0; i < points_clusters_count; i++) {
+				l1.resize(points_clusters_array[i].size());
+				l3.resize(points_clusters_array[i].size());
+
+				levels(points_clusters_array[i], d, l1, l3, i + 1);
+
+				M.resize(points_clusters_array[i].size() * 3, vector<double>(6));
+				fill_3L_Matrix_2nd_power(M, points_clusters_array[i], l1, l3);
+				solve_system(M, d, i + 1);
+
+				l1.clear();
+				l3.clear();
+			}
+	#endif
+}
 
 void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
 	// заполняет матрицу (2я степень неявной функции)

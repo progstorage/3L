@@ -1,6 +1,7 @@
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
+import random as rnd
 
 def Fun(x,h):
 	fi1=[]
@@ -53,9 +54,9 @@ for i in range(1,5):
 	file_name='../in/in_{}.txt'.format(i)
 	with open(file_name, 'w+') as _in:	
 		for j in range(len(xy)):
-			_in.write(str(xy[j][0]))
+			_in.write(str(xy[j][0] + rnd.uniform(-5, 5)))
 			_in.write(';')
-			_in.write(str(xy[j][1]))
+			_in.write(str(xy[j][1] + rnd.uniform(-5, 5)))
 			_in.write('\n')
 
 
