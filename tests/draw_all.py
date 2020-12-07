@@ -21,4 +21,4 @@ for _, _, files in os.walk(dir_name):
 	for file in files:
 		i += 1
 		plt.figure(i)
-		draw(dir_name+file)
+		draw(dir_name + file)

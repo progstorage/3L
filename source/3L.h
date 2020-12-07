@@ -10,12 +10,7 @@
 #include <vector>
 #include "windows.h"
 #include <ctime>
-#include <omp.h>
-
-// 0 - обычный
-// 1 - тестовый режим
-// 2 - тестовый режим с большими матрицами
-#define TEST_MODE 2
+#include "source/config.h"
 
 using namespace std;
 namespace fs = experimental::filesystem;

@@ -325,9 +325,6 @@ void solve_system(Matrix& M, double d, int num) {
 	#elif TEST_MODE == 2
 		// big-size matrix testing
 		clock_t start_1, end_1, start_2, end_2;
-		int size_1 = 100;
-		int size_2 = 20;
-		int size_3 = 400;
 
 		// многопоточное умножение матрицы на вектор
 		start_1 = clock();
