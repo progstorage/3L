@@ -10,6 +10,9 @@
 #include <vector>
 #include "windows.h"
 #include <ctime>
+#include <process.h>
+#include <cstdlib>
+#include <limits>
 #include "source/config.h"
 
 using namespace std;
@@ -18,21 +21,20 @@ namespace fs = experimental::filesystem;
 using vector_pairs =	vector<pair<double, double>>;
 using Matrix =			vector<vector<double>>;
 
-vector_pairs	sort(const vector<double>&, const vector<double>&, double*);
-Matrix			transpose_Matrix(const Matrix&);
-Matrix			mult_Matrix(const Matrix&, const Matrix&);
-Matrix			mult_Matrix_multithread(const Matrix&, const Matrix&);
-Matrix			inverse_Matrix(const Matrix&);
-Matrix			generate_random_Matrix(const int, const int);
-void			fill_3L_Matrix_2nd_power(Matrix&, const vector_pairs&, const vector_pairs&, const vector_pairs&);
-void			levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
-void			print_Matrix(const Matrix&);
-void			solve_system(Matrix&, double, int);
-void			fill_levels_multithread(double);
-double			det_Matrix(const Matrix&);
-double			diff(pair<double, double>, pair<double, double>);
-int				sort_method_2(const vector<double>&, const vector<double>&, double*);
-int				old_sort(const vector<double>&, const vector<double>&, double*);
+Matrix		transpose_Matrix(const Matrix&);
+Matrix		mult_Matrix(const Matrix&, const Matrix&);
+Matrix		mult_Matrix_multithread(const Matrix&, const Matrix&);
+Matrix		inverse_Matrix(const Matrix&);
+Matrix		generate_random_Matrix(const int, const int);
+void		fill_3L_Matrix_2nd_power(Matrix&, const vector_pairs&, const vector_pairs&, const vector_pairs&);
+void		levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
+void		print_Matrix(const Matrix&);
+void		solve_system(Matrix&, double, int);
+void		fill_levels_multithread(double);
+double		det_Matrix(const Matrix&);
+double		diff(pair<double, double>, pair<double, double>);
+int			sort_method_2(const vector<double>&, const vector<double>&, double*);
+int			old_sort(const vector<double>&, const vector<double>&, double*);
 
 // global vars
 vector<vector_pairs>	points_clusters_array;		//вектор групп точек
@@ -58,4 +60,26 @@ public:
 	void read_file();
 	void start();
 	void select_execution_method();
+};
+class cubic_spline
+{
+private:
+	// Структура, описывающая сплайн на каждом сегменте сетки
+	struct spline_tuple
+	{
+		double a, b, c, d, x;
+	};
+	spline_tuple *splines; // Сплайн
+	std::size_t n; // Количество узлов сетки
+	void free_mem(); // Освобождение памяти
+public:
+	cubic_spline(); //конструктор
+	~cubic_spline(); //деструктор
+	// Построение сплайна
+	// x - узлы сетки, должны быть упорядочены по возрастанию, кратные узлы запрещены
+	// y - значения функции в узлах сетки
+	// n - количество узлов сетки
+	void build_spline(vector<double>& x, vector<double>& y, std::size_t n);
+	void write_poinst(cubic_spline Spline, double min, double max, int numpoints); // Записывает значения сплайна в точках промежутка [xmin-3, xmax+3]
+	double f(double x) const;	// Вычисление значения интерполированной функции в произвольной точке
 };

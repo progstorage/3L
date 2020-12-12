@@ -10,7 +10,7 @@
 // - 0: обычный
 // - 1: тестовый
 // - 2: тестовый с большими матрицами
-#define TEST_MODE 2
+#define TEST_MODE 0
 
 #if TEST_MODE == 2
 	// M(size_1 x size_2), N(size_2 x size_3), res(size_1, size_3)
