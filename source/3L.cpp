@@ -675,6 +675,22 @@ Matrix inverse_Matrix(const Matrix& M) {
 	return ans;
 }
 
+Matrix get_Moore_Penrose(Matrix& matrix) {
+	// Возвращает псевдообратную матрицу
+
+	// Формула работает только когда столбы линейно-независимы (тут я дублировал код из inverse_Matrix и оттуда по идее можно удалить)
+	try
+	{
+		if (det_Matrix(M) == 0) throw "Determinant of a matrix = 0";
+	}
+	// Расчет по формуле
+	Matrix inversed = inverse_Matrix(matrix);
+	Matrix transposed = transpose_Matrix(matrix);
+	Matrix left = inverse_Matrix(mult_Matrix(transposed, inversed));
+	return mult_Matrix(left,transposed);
+	// return mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(matrix), inverse_Matrix(matrix))), transpose_Matrix(matrix));;
+}
+
 
 Menu::Menu(string path_to_dir) {
 	dir = path_to_dir;
