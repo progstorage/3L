@@ -1,22 +1,31 @@
 #pragma once
 //#include "stdafx.h"
 
+#ifdef _WIN32
+	#include "windows.h"
+	#include <process.h>
+#endif
+
 #include <stdlib.h>
 #include <cmath> 
 #include <iostream>
 #include <fstream>
-#include <filesystem>
 #include <string>
 #include <vector>
-#include "windows.h"
 #include <ctime>
-#include <process.h>
 #include <cstdlib>
 #include <limits>
-#include "source/config.h"
+#include <filesystem>
+// #include "source/config.h"
+#include "config.h"
 
 using namespace std;
-namespace fs = experimental::filesystem;
+
+#ifdef __APPLE__
+	namespace fs = __fs::filesystem;
+#else
+	namespace fs = experimental::filesystem;
+#endif
 
 using vector_pairs =	vector<pair<double, double>>;
 using Matrix =			vector<vector<double>>;
