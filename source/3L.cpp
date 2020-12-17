@@ -155,117 +155,6 @@ int sort_method_2(const vector<double>& x, const vector<double>& y, double* d) {
 }
 
 
-
-
-
-
-cubic_spline::cubic_spline() : splines(NULL)
-{
-}
-cubic_spline::~cubic_spline()
-{
-	free_mem();
-}
-void cubic_spline::build_spline(vector<double>& x, vector<double>& y, std::size_t n)
-{
-	free_mem();
-	this->n = n;
-	// Инициализация массива сплайнов
-	splines = new spline_tuple[n];
-	for (std::size_t i = 0; i < n; ++i)
-	{
-		splines[i].x = x[i];
-		splines[i].a = y[i];
-	}
-	splines[0].c = 0.;
-	// Решение СЛАУ относительно коэффициентов сплайнов c[i] методом прогонки для трехдиагональных матриц
-	// Вычисление прогоночных коэффициентов - прямой ход метода прогонки
-	double *alpha = new double[n - 1];
-	double *beta = new double[n - 1];
-	double A, B, C, F, h_i, h_i1, z;
-	alpha[0] = beta[0] = 0.;
-	for (std::size_t i = 1; i < n - 1; ++i)
-	{
-		h_i = x[i] - x[i - 1], h_i1 = x[i + 1] - x[i];
-		A = h_i;
-		C = 2 * (h_i + h_i1);
-		B = h_i1;
-		F = 6 * ((y[i + 1] - y[i]) / h_i1 - (y[i] - y[i - 1]) / h_i);
-		z = (A * alpha[i - 1] + C);
-		alpha[i] = -B / z;
-		beta[i] = (F - A * beta[i - 1]) / z;
-	}
-	splines[n - 1].c = (F - A * beta[n - 2]) / (C + A * alpha[n - 2]);
-	// Нахождение решения - обратный ход метода прогонки
-	for (std::size_t i = n - 2; i > 0; --i)
-		splines[i].c = alpha[i] * splines[i + 1].c + beta[i];
-	// Освобождение памяти, занимаемой прогоночными коэффициентами
-	delete[] beta;
-	delete[] alpha;
-	// По известным коэффициентам c[i] находим значения b[i] и d[i]
-	for (std::size_t i = n - 1; i > 0; --i)
-	{
-		double h_i = x[i] - x[i - 1];
-		splines[i].d = (splines[i].c - splines[i - 1].c) / h_i;
-		splines[i].b = h_i * (2. * splines[i].c + splines[i - 1].c) /
-			6 + (y[i] - y[i - 1]) / h_i;
-	}
-}
-double cubic_spline::f(double x) const // Возвращает значение интерполированной функции в точке x
-{
-	if (!splines)
-		return std::numeric_limits<double>::quiet_NaN(); // Если сплайны ещё не построены - возвращаем NaN
-	spline_tuple *s;
-	if (x <= splines[0].x) // Если x меньше точки сетки x[0] - пользуемся первым эл - тов массива
-		s = splines + 1;
-	else if (x >= splines[n - 1].x) // Если x больше точки сетки x[n - 1] - пользуемся последним эл - том массива
-		s = splines + n - 1;
-	else // Иначе x лежит между граничными точками сетки - производим бинарный поиск нужного эл - та массива
-	{
-		std::size_t i = 0, j = n - 1;
-		while (i + 1 < j)
-		{
-			std::size_t k = i + (j - i) / 2;
-			if (x <= splines[k].x)
-				j = k;
-			else
-				i = k;
-		}
-		s = splines + j;
-	}
-	double dx = (x - s->x);
-	return s->a + (s->b + (s->c / 2 + s->d * dx / 6.) * dx) * dx; // Вычисляем значение сплайна в заданной точке по схеме Горнера
-}
-void cubic_spline::free_mem()
-{
-	delete[] splines;
-	splines = NULL;
-}
-void cubic_spline::write_poinst(cubic_spline Spline, double min, double max, int numpoints = 100) {
-	vector<double> x;
-	vector<double> y;
-	int i = 0;
-	double p = min;
-	double h = (max - min) / numpoints;
-	while (p <= max) {
-		x.push_back(p);
-		y.push_back(Spline.f(p));
-		p += h;
-	}
-
-	ofstream outfile("out.txt", ios::out | ios::trunc); //хз че за ошибка, нажимаешь продолжить и все работает
-	for (int i = 0; i <= numpoints; i++) {
-		outfile << fixed << x[i] << "," << y[i] << endl;
-	}
-	outfile.close();
-}
-
-
-
-
-
-
-
 void levels(vector_pairs points, double d, vector_pairs& l1, vector_pairs& l3, int num) {
 	// функция принимает на вход пары точек
 	// и записывает полученные уровни в txt файл
@@ -308,43 +197,19 @@ void levels(vector_pairs points, double d, vector_pairs& l1, vector_pairs& l3, i
 }
 
 
-void print_Matrix(const Matrix& M) {
-	// вывести матрицу
-	for (const auto& v : M) {
-		for (const auto& e : v)
-			cout << e << "\t";
-		cout << endl;
-	}
-	//cin.get(); cin.get();
-}
-
-
-Matrix transpose_Matrix(const Matrix& M) {
-	// транспонирование матрицы
-	int n = M.size();
-	int m = M[0].size();
-	Matrix N(m, vector<double>(n));
-
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < m; j++)
-			N[j][i] = M[i][j];
-	return N;
-}
-
-
 Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 	// перемножение двух матриц
 	//M = M1;
 	//N = N1;
-	int m1 = M.size();
-	int m2 = M[0].size();
-	int n1 = N.size();
-	int n2 = N[0].size();
+	int m1 = M.rows_num();
+	int m2 = M.cols_num();
+	int n1 = N.rows_num();
+	int n2 = N.cols_num();
 	if (m2 != n1) {
 		cerr << "Wrong sizes!";
 		exit(0);
 	}
-	Matrix K(m1, vector<double>(n2));
+	Matrix K(m1, n2);
 
 	double tmp;
 	for (int i = 0; i < m1; i++) {
@@ -365,38 +230,11 @@ Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 
 Matrix generate_random_Matrix(const int n, const int m) {
 	// генерирует случайную матрицу размера n x m
-	Matrix res(n, vector<double>(m));
+	Matrix res(n, m);
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
 			res[i][j] = (rand() % 10000 - 5000) / 100;
 	return res;
-}
-
-
-Matrix mult_Matrix_multithread(const Matrix& M, const Matrix& N) {
-	int m1 = M.size();
-	int m2 = M[0].size();
-	int n1 = N.size();
-	int n2 = N[0].size();
-	if (m2 != n1) {
-		cerr << "Wrong sizes!";
-		exit(0);
-	}
-	Matrix K(m1, vector<double>(n2));
-	
-	int i, j, k;
-	
-	#pragma omp parallel for private(i, j, k) shared(M, N, K)
-		for (i = 0; i < m1; i++) {
-			for (j = 0; j < n2; j++) {
-				K[i][j] = 0;
-				for (k = 0; k < n1; k++) {
-					K[i][j] += (M[i][k] * N[k][j]);
-				}
-			}
-		}
-
-	return K;
 }
 
 
@@ -405,19 +243,20 @@ void solve_system(Matrix& M, double d, int num) {
 	string type = ".txt";
 	string dir = "coefs/";
 	double len = M.size();
-	Matrix b(1, vector<double>(len));
+	Matrix b(1, len);
 	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
 	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
 
-	Matrix a;
+	Matrix a; // возможно ошибка (не делал конструктор по умолчанию)
 
 	#if TEST_MODE == 1
 		clock_t start_1, end_1, start_2, end_2;
 	
 		// многопоточное умножение матрицы на вектор
 		start_1 = clock();
-		a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));		
+		// a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));		
+		a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
 		end_1 = clock() - start_1;
 			
 		// однопоточное
@@ -438,7 +277,8 @@ void solve_system(Matrix& M, double d, int num) {
 
 		// многопоточное умножение матрицы на вектор
 		start_1 = clock();
-		a = mult_Matrix_multithread(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
+		// a = mult_Matrix_multithread(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
+		a = generate_random_Matrix(size_1, size_2) * generate_random_Matrix(size_2, size_3);
 		end_1 = clock() - start_1;
 
 		// однопоточное
@@ -451,6 +291,7 @@ void solve_system(Matrix& M, double d, int num) {
 		cout << endl;
 	#else
 		a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+		a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
 	#endif
 
 	auto name = dir + to_string(num) + type;
@@ -523,258 +364,4 @@ void fill_levels_multithread(double d) {
 				l3.clear();
 			}
 	#endif
-}
-
-void fill_3L_Matrix_2nd_power(Matrix& M, const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
-	// заполняет матрицу (2я степень неявной функции)
-	// Матрица вида 
-	// [M-]
-	// [M0]
-	// [M+]
-	for (int i = 0; i < M.size() / 3; i++) {
-		M[i][0] = 1;
-		M[i][1] = l1[i].first;
-		M[i][2] = l1[i].second;
-		M[i][3] = l1[i].first * l1[i].first;
-		M[i][4] = l1[i].first * l1[i].second;
-		M[i][5] = l1[i].second * l1[i].second;
-	}
-	int j = 0;
-	for (int i = M.size() / 3; i < 2 * M.size() / 3; i++) {
-		M[i][0] = 1;
-		M[i][1] = points[j].first;
-		M[i][2] = points[j].second;
-		M[i][3] = points[j].first * points[j].first;
-		M[i][4] = points[j].first * points[j].second;
-		M[i][5] = points[j].second * points[j].second;
-		j++;
-	}
-	j = 0;
-	for (int i = 2 * M.size() / 3; i < M.size(); i++) {
-		M[i][0] = 1;
-		M[i][1] = l3[j].first;
-		M[i][2] = l3[j].second;
-		M[i][3] = l3[j].first * l3[j].first;
-		M[i][4] = l3[j].first * l3[j].second;
-		M[i][5] = l3[j].second * l3[j].second;
-		j++;
-	}
-}
-
-
-double det_Matrix(const Matrix& M) {
-	// определитель Метод Гаусса
-	const double EPS = 1E-9;
-	int n = M.size();
-	Matrix N(M);	// Копирование матрицы
-	double det = 1;
-	for (int i = 0; i < n; ++i) {
-		int k = i;
-		for (int j = i + 1; j < n; ++j) {
-			if (abs(N[j][i]) > abs(N[k][i]))
-				k = j;
-		}
-		if (abs(N[k][i]) < EPS) {
-			det = 0;
-			return det;
-		}
-		swap(N[i], N[k]);
-		if (i != k)
-			det = -det;
-		det *= N[i][i];
-		for (int j = i + 1; j < n; ++j) {
-			N[i][j] /= N[i][i];
-		}
-		for (int j = 0; j < n; ++j)
-			if (j != i && abs(N[j][i]) > EPS)
-				for (int k = i + 1; k < n; ++k)
-					N[j][k] -= N[i][k] * N[j][i];
-	}
-	return det;
-}
-
-
-Matrix inverse_Matrix(const Matrix& M) {
-	// находит обратную матрицу
-	try
-	{
-		if (det_Matrix(M) == 0) throw "Determinant of a matrix = 0";
-	}
-	catch (const char* exception)
-	{
-		cerr << "Error: " << exception << endl;
-		system("pause");
-		exit(EXIT_FAILURE);
-	}
-
-	int matrix_size = M.size();
-	Matrix solve_matrix(matrix_size, vector<double>(matrix_size * 2));
-
-	for (int row = 0; row < matrix_size; row++) // инициализация рабочей матрицы
-		for (int col = 0; col < matrix_size * 2; col++)
-			solve_matrix[row][col] = (col < matrix_size) ? M[row][col] : (col == row + (matrix_size)) ? 1 : 0;
-
-	// Прямой ход
-	for (int iteration = 0; iteration < matrix_size; iteration++) { // номер итерации
-		if (solve_matrix[iteration][iteration] == 0) { // проверка ведущего элемента на 0
-			int tmp = iteration;
-			while (tmp < matrix_size) // поиск строки с ненулевым ведущим элементом
-				if (solve_matrix[tmp][iteration] == 0)
-					tmp++;
-				else
-					break;
-			if (tmp == matrix_size)
-				continue;
-			for (int col = 0; col < 2 * matrix_size; col++) // перестановка строки
-				swap(solve_matrix[tmp][col], solve_matrix[iteration][col]);
-		}
-
-		double K = solve_matrix[iteration][iteration];
-		for (int col = 0; col < 2 * matrix_size; col++) // преобразование ведущей строки
-			solve_matrix[iteration][col] = solve_matrix[iteration][col] / K;
-
-		for (int row = iteration + 1; row < matrix_size; row++) { // преобразование остальных строк
-			double K = solve_matrix[row][iteration] / solve_matrix[iteration][iteration];
-			for (int col = 0; col < 2 * matrix_size; col++)
-				solve_matrix[row][col] = solve_matrix[row][col] - (solve_matrix[iteration][col] * K);
-		}
-	}
-
-	// Обратный ход
-	for (int iteration = matrix_size - 1; iteration > -1; iteration--) {
-
-		if (solve_matrix[iteration][iteration] == 0) {
-			int tmp = iteration;
-			while (tmp > -1)
-				if (solve_matrix[tmp][iteration] == 0)
-					tmp--;
-				else
-					break;
-			if (tmp == -1)
-				continue;
-			for (int col = 0; col < 2 * matrix_size; col++)
-				swap(solve_matrix[tmp][col], solve_matrix[iteration][col]);
-		}
-
-		double K = solve_matrix[iteration][iteration];
-		for (int col = 2 * matrix_size - 1; col > -1; col--)
-			solve_matrix[iteration][col] = solve_matrix[iteration][col] / K;
-
-		for (int row = iteration - 1; row > -1; row--)
-		{
-			double K = solve_matrix[row][iteration] / solve_matrix[iteration][iteration];
-			for (int col = 2 * matrix_size - 1; col > -1; col--)
-				solve_matrix[row][col] = solve_matrix[row][col] - (solve_matrix[iteration][col] * K);
-		}
-	}
-
-	Matrix ans(matrix_size, vector<double>(matrix_size)); // матрица с ответом
-	for (int row = 0; row < matrix_size; row++) // заполнение матрицы с ответом
-		for (int col = 0; col < matrix_size; col++)
-			ans[row][col] = solve_matrix[row][col + matrix_size];
-	return ans;
-}
-
-Matrix get_Moore_Penrose(Matrix& matrix) {
-	// Возвращает псевдообратную матрицу
-
-	// Формула работает только когда столбы линейно-независимы (тут я дублировал код из inverse_Matrix и оттуда по идее можно удалить)
-	try
-	{
-		if (det_Matrix(matrix) == 0) throw "Determinant of a matrix = 0";
-	}
-	catch (const char* exception)
-	{
-		cerr << "Error: " << exception << endl;
-		system("pause");
-		exit(EXIT_FAILURE);
-	}
-	// Расчет по формуле
-	Matrix inversed = inverse_Matrix(matrix);
-	Matrix transposed = transpose_Matrix(matrix);
-	Matrix left = inverse_Matrix(mult_Matrix_multithread(transposed, inversed));
-	return mult_Matrix_multithread(left,transposed);
-}
-
-
-Menu::Menu(string path_to_dir) {
-	dir = path_to_dir;
-	get_files(path_to_dir);
-	start();
-	to_draw = true;
-}
-
-
-void Menu::get_files(string path_to_dir) {
-	for (const auto & f : fs::directory_iterator(path_to_dir)) {
-		files.push_back(f.path().string());
-	}
-}
-
-
-void Menu::print_menu() {
-	cout << "Directory: " << dir << endl;
-	cout << "File" << "\t\t\t" << "N" << endl;
-	
-	int i;
-	for (i = 0; i < files.size(); i++) {
-		cout << files[i] << "\t" << i + 1 << endl;
-	}
-
-	cout << "Exit" << "\t\t\t" << i + 1 << endl;
-}
-
-
-void Menu::select_file() {
-	cout << endl << "Enter file number:\t";
-	cin >> n;
-	if (n <= files.size()) {
-		test_file = files[n - 1];
-	}
-	else if (n == files.size() + 1) {
-		to_draw = false;
-		exit(0);
-	}
-	else {
-		cout << endl << "Error! Try again!";
-		select_file();
-	}
-	cout << "\n-------------------------\n\n";
-}
-
-void Menu::select_execution_method() {
-	cout << endl << "Enter 1 - old method, 2 - new method:\t";
-	cin >> execution_method;
-}
-
-void Menu::start() {
-	print_menu();
-	select_file();
-	read_file();
-	select_execution_method();
-}
-
-
-void Menu::split(string line, double* x, double* y) {
-	auto pos = line.find(";");
-	if (pos != string::npos) {
-		*x = stod(line.substr(0, pos));
-		*y = stod(line.substr(pos + 1));
-	}
-}
-
-
-void Menu::read_file() {
-	string line;
-	double tmpx;
-	double tmpy;
-	ifstream in(test_file);		//Чтение данных из файла test_file
-	if (in.is_open()) {
-		while (getline(in, line)) {
-			split(line, &tmpx, &tmpy);
-			x.push_back(tmpx);
-			y.push_back(tmpy);
-		}
-	}
-	in.close();
 }
