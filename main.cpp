@@ -2,6 +2,8 @@
 	#include "stdafx.h"
 #endif
 #include "source/3L.cpp"
+#include "source/cubic_spline.cpp"
+#include "source/Menu.cpp"
 
 
 int main(void) {

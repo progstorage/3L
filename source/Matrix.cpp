@@ -3,14 +3,14 @@
 // конструктор
 Matrix::Matrix(int rows, int cols) {
 	// this->elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols, 0));
-	elem.resize(rows, vector<double> (cols));
+	this->elem.resize(rows, vector<double> (cols));
 }
 
 Matrix::Matrix(const Matrix& M) {
 	int rows = M.rows_num();
 	int cols = M.cols_num();
-	// elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols));	
-	elem.resize(rows, vector<double> (cols));
+	// this->elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols));	
+	this->elem.resize(rows, vector<double> (cols));
 	for (int i = 0; i < rows; i++)
 		for (int j = 0; j < cols; j++)
 			elem[i][j] = M[i][j];
@@ -69,38 +69,38 @@ void Matrix::print() {
 }
 
 // заполнение матрицы
-void fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
+void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
 	// заполняет матрицу (2я степень неявной функции)
 	// Матрица вида 
 	// [M-]
 	// [M0]
 	// [M+]
-	for (int i = 0; i < (*this).elem.size() / 3; i++) {
-		(*this).elem[i][0] = 1;
-		(*this).elem[i][1] = l1[i].first;
-		(*this).elem[i][2] = l1[i].second;
-		(*this).elem[i][3] = l1[i].first * l1[i].first;
-		(*this).elem[i][4] = l1[i].first * l1[i].second;
-		(*this).elem[i][5] = l1[i].second * l1[i].second;
+	for (int i = 0; i < this->elem.size() / 3; i++) {
+		this->elem[i][0] = 1;
+		this->elem[i][1] = l1[i].first;
+		this->elem[i][2] = l1[i].second;
+		this->elem[i][3] = l1[i].first * l1[i].first;
+		this->elem[i][4] = l1[i].first * l1[i].second;
+		this->elem[i][5] = l1[i].second * l1[i].second;
 	}
 	int j = 0;
-	for (int i = (*this).elem.size() / 3; i < 2 * (*this).elem.size() / 3; i++) {
-		(*this).elem[i][0] = 1;
-		(*this).elem[i][1] = points[j].first;
-		(*this).elem[i][2] = points[j].second;
-		(*this).elem[i][3] = points[j].first * points[j].first;
-		(*this).elem[i][4] = points[j].first * points[j].second;
-		(*this).elem[i][5] = points[j].second * points[j].second;
+	for (int i = this->elem.size() / 3; i < 2 * this->elem.size() / 3; i++) {
+		this->elem[i][0] = 1;
+		this->elem[i][1] = points[j].first;
+		this->elem[i][2] = points[j].second;
+		this->elem[i][3] = points[j].first * points[j].first;
+		this->elem[i][4] = points[j].first * points[j].second;
+		this->elem[i][5] = points[j].second * points[j].second;
 		j++;
 	}
 	j = 0;
-	for (int i = 2 * (*this).elem.size() / 3; i < (*this).elem.size(); i++) {
-		(*this).elem[i][0] = 1;
-		(*this).elem[i][1] = l3[j].first;
-		(*this).elem[i][2] = l3[j].second;
-		(*this).elem[i][3] = l3[j].first * l3[j].first;
-		(*this).elem[i][4] = l3[j].first * l3[j].second;
-		(*this).elem[i][5] = l3[j].second * l3[j].second;
+	for (int i = 2 * this->elem.size() / 3; i < this->elem.size(); i++) {
+		this->elem[i][0] = 1;
+		this->elem[i][1] = l3[j].first;
+		this->elem[i][2] = l3[j].second;
+		this->elem[i][3] = l3[j].first * l3[j].first;
+		this->elem[i][4] = l3[j].first * l3[j].second;
+		this->elem[i][5] = l3[j].second * l3[j].second;
 		j++;
 	}
 }
@@ -114,7 +114,7 @@ Matrix Matrix::transpose() {
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
-			N[j][i] = M[i][j];
+			N[j][i] = this->elem[i][j];
 	return N;
 }
 
@@ -199,7 +199,7 @@ Matrix Matrix::inverse() {
 }
 
 // многопоточное перемножение матриц
-Matrix& operator*(const Matrix& N) const{
+Matrix& Matrix::operator*(const Matrix& N) const{
 	int m1 = elem.size();
 	int m2 = elem[0].size();
 	int n1 = N.rows_num();
@@ -226,6 +226,6 @@ void Matrix::resize(int rows, int cols) {
 	elem.resize(rows, vector<double> (cols));
 }
 
-double& operator[](int index) const {
+double* Matrix::operator[](int index) const {
 	return elem[index];
 }

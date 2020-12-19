@@ -1,7 +1,6 @@
 #include "3L.h"
 
-class Menu;
-
+// class Menu;
 
 double diff(pair<double, double> pk, pair<double, double> pk_1) {
 	//производная в точке pk = (x[k], y[k]) 
@@ -242,13 +241,13 @@ void solve_system(Matrix& M, double d, int num) {
 	// Решает систему уравнений - находит коэффициенты многочлена и записывает их в файл "coef.txt"
 	string type = ".txt";
 	string dir = "coefs/";
-	double len = M.size();
+	double len = M.rows_num();
 	Matrix b(1, len);
 	for (int i = 0; i < len / 3; i++) { b[0][i] = d; }
 	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
 
-	Matrix a; // возможно ошибка (не делал конструктор по умолчанию)
+	Matrix a(0, 0); // возможно ошибка (не делал конструктор по умолчанию и не перегружал оператор =)
 
 	#if TEST_MODE == 1
 		clock_t start_1, end_1, start_2, end_2;
@@ -290,7 +289,7 @@ void solve_system(Matrix& M, double d, int num) {
 			 << "\nMulti-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC;
 		cout << endl;
 	#else
-		a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
+		// a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
 		a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
 	#endif
 
@@ -306,7 +305,7 @@ void solve_system(Matrix& M, double d, int num) {
 void fill_levels_multithread(double d) {
 	int i;
 	vector_pairs l1, l3;
-	Matrix M;
+	Matrix M(0, 0);
 
 	#if TEST_MODE
 		clock_t start_1, end_1, start_2, end_2;
@@ -320,7 +319,7 @@ void fill_levels_multithread(double d) {
 
 				levels(points_clusters_array[i], d, l1, l3, i + 1);
 
-				M.resize(points_clusters_array[i].size() * 3, vector<double>(6));
+				M.resize(points_clusters_array[i].size() * 3, 6);
 				fill_3L_Matrix_2nd_power(M, points_clusters_array[i], l1, l3);
 				solve_system(M, d, i + 1);
 
@@ -336,7 +335,7 @@ void fill_levels_multithread(double d) {
 			l3.resize(points_clusters_array[j].size());
 			levels(points_clusters_array[j], d, l1, l3, j + 1);
 
-			M.resize(points_clusters_array[j].size() * 3, vector<double>(6));
+			M.resize(points_clusters_array[j].size() * 3, 6);
 			fill_3L_Matrix_2nd_power(M, points_clusters_array[j], l1, l3);
 			solve_system(M, d, j + 1);
 
@@ -356,8 +355,8 @@ void fill_levels_multithread(double d) {
 
 				levels(points_clusters_array[i], d, l1, l3, i + 1);
 
-				M.resize(points_clusters_array[i].size() * 3, vector<double>(6));
-				fill_3L_Matrix_2nd_power(M, points_clusters_array[i], l1, l3);
+				M.resize(points_clusters_array[i].size() * 3, 6);
+				M.fill_3L_Matrix_2nd_power(points_clusters_array[i], l1, l3);
 				solve_system(M, d, i + 1);
 
 				l1.clear();

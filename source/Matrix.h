@@ -16,6 +16,5 @@ public:
 	Matrix transpose();
 	Matrix inverse();
 	Matrix& operator*(const Matrix&) const; // многопоточное умножение
-	double& operator[](int) const; // многопоточное умножение
-
+	double* operator[](int) const; // многопоточное умножение
 };
