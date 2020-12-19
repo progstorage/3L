@@ -2,25 +2,16 @@
 
 // конструктор
 Matrix::Matrix(int rows, int cols) {
-	// this->elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols, 0));
 	this->elem.resize(rows, vector<double>(cols));
 }
 
-Matrix::Matrix(Matrix& M) {
+Matrix::Matrix(const Matrix& M) {
 	int rows = M.rows_num();
 	int cols = M.cols_num();
-	// this->elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols));	
 	this->elem.resize(rows, vector<double>(cols));
 	for (int i = 0; i < rows; i++)
 		for (int j = 0; j < cols; j++)
 			elem[i][j] = M[i][j];
-}
-
-// деструктор
-Matrix::~Matrix() {
-	// for (int i = 0; i < elem.size(); i++)
-	// 	delete elem[i];
-	// delete elem;
 }
 
 // возврат размерности
@@ -44,13 +35,7 @@ double Matrix::det() {
 			det = 0;
 			return det;
 		}
-		//swap(N[i], N[k]);
-		if (i != k)
-			det = -det;
-		det *= N[i][i];
-		for (int j = i + 1; j < n; ++j) {
-			N[i][j] /= N[i][i];
-		}
+		swap(N[i], N[k]);
 		for (int j = 0; j < n; ++j)
 			if (j != i && abs(N[j][i]) > EPS)
 				for (int k = i + 1; k < n; ++k)
@@ -199,7 +184,7 @@ Matrix Matrix::inverse() {
 }
 
 // многопоточное перемножение матриц
-Matrix& Matrix::operator*(Matrix& N) const {
+Matrix Matrix::operator*(const Matrix& N) {
 	int m1 = elem.size();
 	int m2 = elem[0].size();
 	int n1 = N.rows_num();
@@ -222,15 +207,19 @@ Matrix& Matrix::operator*(Matrix& N) const {
 	return K;
 }
 
-void Matrix::resize(int rows, int cols) {
+void Matrix::resize(int rows, int cols){
 	elem.resize(rows, vector<double>(cols));
 }
 
-vector<double>& Matrix::operator[](int index) {
+vector<double>& Matrix::operator[](int index){
 	return elem[index];
 }
 
-Matrix mult_Matrix(Matrix& M, Matrix& N) {
+const vector<double>& Matrix::operator[](int index) const{
+	return elem[index];
+}
+
+Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
 	// перемножение двух матриц
 	//M = M1;
 	//N = N1;
@@ -243,7 +232,6 @@ Matrix mult_Matrix(Matrix& M, Matrix& N) {
 		exit(0);
 	}
 	Matrix K(m1, n2);
-
 	double tmp;
 	for (int i = 0; i < m1; i++) {
 		for (int j = 0; j < n2; j++) {
@@ -256,6 +244,13 @@ Matrix mult_Matrix(Matrix& M, Matrix& N) {
 			K[i][j] = tmp;
 		}
 	}
-
 	return K;
+}
+
+Matrix& Matrix::operator=(const Matrix& M) {
+	elem.resize(M.rows_num(), vector<double>(M.cols_num()));
+	for (int i = 0; i < elem.size(); i++)
+		for (int j = 0; j < elem[i].size(); j++)
+			elem[i][j] = M[i][j];
+	return *this;
 }

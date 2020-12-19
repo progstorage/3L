@@ -259,7 +259,6 @@ void solve_system(Matrix& M, double d, int num) {
 		// a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
 		a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
 	#endif
-
 	auto name = dir + to_string(num) + type;
 	ofstream outfile(name, ios::out | ios::trunc);
 	for (int i = 0; i < 6; i++) {
