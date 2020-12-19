@@ -47,7 +47,7 @@ int main(void) {
 	setup();
 
 	fill_levels_multithread(d);
-	system("/usr/local/opt/python@3.8/bin/python3 plot/plot_3L.py");	// отрисовка
+	system("python plot/plot_3L.py");	// отрисовка
 
 	return 0;
 }
