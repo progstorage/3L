@@ -1,3 +1,6 @@
+#ifndef MATRIXX
+#define MATRIXX
+
 #include <vector>
 
 class Matrix {
@@ -17,4 +20,7 @@ public:
 	Matrix inverse();
 	Matrix& operator*(const Matrix&) const; // многопоточное умножение
 	double* operator[](int) const; // многопоточное умножение
+	friend Matrix mult_Matrix(const Matrix&, const Matrix&);
 };
+
+#endif

@@ -229,3 +229,33 @@ void Matrix::resize(int rows, int cols) {
 double* Matrix::operator[](int index) const {
 	return elem[index];
 }
+
+Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
+	// перемножение двух матриц
+	//M = M1;
+	//N = N1;
+	int m1 = M.rows_num();
+	int m2 = M.cols_num();
+	int n1 = N.rows_num();
+	int n2 = N.cols_num();
+	if (m2 != n1) {
+		cerr << "Wrong sizes!";
+		exit(0);
+	}
+	Matrix K(m1, n2);
+
+	double tmp;
+	for (int i = 0; i < m1; i++) {
+		for (int j = 0; j < n2; j++) {
+			tmp = 0.0;
+			//cout << i << " " << j << endl;
+			for (int k = 0; k < m2; k++) {
+				//cout << "k: " << k << endl;
+				tmp += M[i][k] * N[k][j];
+			}
+			K[i][j] = tmp;
+		}
+	}
+
+	return K;
+}

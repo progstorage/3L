@@ -1,11 +1,12 @@
+#ifndef CUBIC_SPLINE
+#define CUBIC_SPLINE
+
 #include <vector>
 
-class cubic_spline
-{
+class cubic_spline {
 private:
 	// Ñòðóêòóðà, îïèñûâàþùàÿ ñïëàéí íà êàæäîì ñåãìåíòå ñåòêè
-	struct spline_tuple
-	{
+	struct spline_tuple {
 		double a, b, c, d, x;
 	};
 	spline_tuple *splines; // Ñïëàéí
@@ -18,7 +19,9 @@ public:
 	// x - óçëû ñåòêè, äîëæíû áûòü óïîðÿäî÷åíû ïî âîçðàñòàíèþ, êðàòíûå óçëû çàïðåùåíû
 	// y - çíà÷åíèÿ ôóíêöèè â óçëàõ ñåòêè
 	// n - êîëè÷åñòâî óçëîâ ñåòêè
-	void build_spline(vector<double>& x, vector<double>& y, std::size_t n);
-	void write_poinst(cubic_spline Spline, double min, double max, int numpoints); // Çàïèñûâàåò çíà÷åíèÿ ñïëàéíà â òî÷êàõ ïðîìåæóòêà [xmin-3, xmax+3]
-	double f(double x) const;	// Âû÷èñëåíèå çíà÷åíèÿ èíòåðïîëèðîâàííîé ôóíêöèè â ïðîèçâîëüíîé òî÷êå
+	void build_spline(vector<double>&, vector<double>&, std::size_t);
+	void write_poinst(cubic_spline, double, double, int); // Çàïèñûâàåò çíà÷åíèÿ ñïëàéíà â òî÷êàõ ïðîìåæóòêà [xmin-3, xmax+3]
+	double f(double) const;	// Âû÷èñëåíèå çíà÷åíèÿ èíòåðïîëèðîâàííîé ôóíêöèè â ïðîèçâîëüíîé òî÷êå
 };
+
+#endif

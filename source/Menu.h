@@ -1,5 +1,7 @@
+#ifndef MENU
+#define MENU
+
 #include <vector>
-// #include <>
 
 class Menu {
 public:
@@ -21,3 +23,5 @@ public:
 	void start();
 	void select_execution_method();
 };
+
+#endif

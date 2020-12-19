@@ -1,7 +1,5 @@
 #include "3L.h"
 
-// class Menu;
-
 double diff(pair<double, double> pk, pair<double, double> pk_1) {
 	//производная в точке pk = (x[k], y[k]) 
 	//pk_1 = (x[k+1], y[k+1])
@@ -193,37 +191,6 @@ void levels(vector_pairs points, double d, vector_pairs& l1, vector_pairs& l3, i
 		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
 	}
 	outfile.close();
-}
-
-
-Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
-	// перемножение двух матриц
-	//M = M1;
-	//N = N1;
-	int m1 = M.rows_num();
-	int m2 = M.cols_num();
-	int n1 = N.rows_num();
-	int n2 = N.cols_num();
-	if (m2 != n1) {
-		cerr << "Wrong sizes!";
-		exit(0);
-	}
-	Matrix K(m1, n2);
-
-	double tmp;
-	for (int i = 0; i < m1; i++) {
-		for (int j = 0; j < n2; j++) {
-			tmp = 0.0;
-			//cout << i << " " << j << endl;
-			for (int k = 0; k < m2; k++) {
-				//cout << "k: " << k << endl;
-				tmp += M[i][k] * N[k][j];
-			}
-			K[i][j] = tmp;
-		}
-	}
-
-	return K;
 }
 
 

@@ -1,8 +1,9 @@
 #ifdef _WIN32
 	#include "stdafx.h"
 #endif
+
+#include "config.h"
 #include "source/3L.cpp"
-#include "source/cubic_spline.cpp"
 #include "source/Menu.cpp"
 
 
