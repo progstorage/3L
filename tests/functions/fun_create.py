@@ -7,6 +7,9 @@ def Fun(x, h):
 	fi1 = []
 	r1 = []
 
+	x_=[]
+	y_=[]
+
 	if (x == 1):
 		a = 0.1
 		for fi in np.arange(0, 2 * pi, h):
@@ -50,16 +53,65 @@ def Fun(x, h):
 			i += 1
 		return Y
 
+	elif (x == 7):
+		for i in np.arange(-1.8,1.8,h):
+			x_.append(i)
+			y_.append(-(1/2)+sin(i**2))
+
+			if (i>-3/2) and (i<3/2):
+				x_.append(i)
+				y_.append(i**4 - 2*(i**2))
+
+			if (i>-1/2) and (i<1/2):
+				x_.append(i)
+				y_.append(1/5+(i**2)*10)
+
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 8):
+		for i in np.arange(0,5,h):
+			if (i!=3):
+				x_.append(i)
+				y_.append((2/(i-3)+2))
+				x_.append(-i)
+				y_.append((2/(i-3)+2))
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 9):
+		for i in np.arange(-1,1,h):
+			x_.append(i)
+			y_.append(-1+(i**5))
+
+			x_.append(i)
+			y_.append(10*tan(i**2))
+
+			x_.append(i)
+			y_.append(10*tan(i**3 + 1/5))
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
 
 	Y = [[0] * 2 for i in range(len(fi1))]
 
 	for i in range(len(fi1)):
 		Y[i][0] = (r1[i] * cos(fi1[i]))
 		Y[i][1] = (r1[i] * sin(fi1[i]))
+
+
 	return Y
 
 h = 0.02 #шаг
-fun_count = 6
+fun_count = 9
 for i in range(1, fun_count + 1):
 	xy = Fun(i, h)  
 	# для отрисовки полученной функции:
