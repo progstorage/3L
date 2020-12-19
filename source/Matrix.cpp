@@ -1,38 +1,38 @@
 #include "Matrix.h"
 
-// РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+// конструктор
 Matrix::Matrix(int rows, int cols) {
 	// this->elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols, 0));
-	this->elem.resize(rows, vector<double> (cols));
+	this->elem.resize(rows, vector<double>(cols));
 }
 
-Matrix::Matrix(const Matrix& M) {
+Matrix::Matrix(Matrix& M) {
 	int rows = M.rows_num();
 	int cols = M.cols_num();
 	// this->elem = new std::vector<std::vector<double> >(rows, std::vector<double> (cols));	
-	this->elem.resize(rows, vector<double> (cols));
+	this->elem.resize(rows, vector<double>(cols));
 	for (int i = 0; i < rows; i++)
 		for (int j = 0; j < cols; j++)
 			elem[i][j] = M[i][j];
 }
 
-// РґРµСЃС‚СЂСѓРєС‚РѕСЂ
+// деструктор
 Matrix::~Matrix() {
 	// for (int i = 0; i < elem.size(); i++)
 	// 	delete elem[i];
 	// delete elem;
 }
 
-// РІРѕР·РІСЂР°С‚ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё
+// возврат размерности
 int Matrix::rows_num() const { return elem.size(); }
 int Matrix::cols_num() const { return elem[0].size(); }
 
-// РїРѕРёСЃРє РѕРїСЂРµРґРµР»РёС‚РµР»СЏ
+// поиск определителя
 double Matrix::det() {
-	// РѕРїСЂРµРґРµР»РёС‚РµР»СЊ РњРµС‚РѕРґ Р“Р°СѓСЃСЃР°
+	// определитель Метод Гаусса
 	const double EPS = 1E-9;
 	int n = elem.size();
-	Matrix N(*this);	// РљРѕРїРёСЂРѕРІР°РЅРёРµ РјР°С‚СЂРёС†С‹
+	Matrix N(*this);	// Копирование матрицы
 	double det = 1;
 	for (int i = 0; i < n; ++i) {
 		int k = i;
@@ -44,7 +44,7 @@ double Matrix::det() {
 			det = 0;
 			return det;
 		}
-		swap(N[i], N[k]);
+		//swap(N[i], N[k]);
 		if (i != k)
 			det = -det;
 		det *= N[i][i];
@@ -59,7 +59,7 @@ double Matrix::det() {
 	return det;
 }
 
-// РїРµС‡Р°С‚СЊ РјР°С‚СЂРёС†С‹ РІ РєРѕРЅСЃРѕР»СЊ
+// печать матрицы в консоль
 void Matrix::print() {
 	for (const auto& v : elem) {
 		for (const auto& e : v)
@@ -68,10 +68,10 @@ void Matrix::print() {
 	}
 }
 
-// Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°С‚СЂРёС†С‹
+// заполнение матрицы
 void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
-	// Р·Р°РїРѕР»РЅСЏРµС‚ РјР°С‚СЂРёС†Сѓ (2СЏ СЃС‚РµРїРµРЅСЊ РЅРµСЏРІРЅРѕР№ С„СѓРЅРєС†РёРё)
-	// РњР°С‚СЂРёС†Р° РІРёРґР° 
+	// заполняет матрицу (2я степень неявной функции)
+	// Матрица вида 
 	// [M-]
 	// [M0]
 	// [M+]
@@ -105,9 +105,9 @@ void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_p
 	}
 }
 
-// РїРѕРёСЃРє С‚СЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРЅРЅРѕР№ РјР°С‚СЂРёС†С‹
+// поиск транспонированнной матрицы
 Matrix Matrix::transpose() {
-	// С‚СЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРёРµ РјР°С‚СЂРёС†С‹
+	// транспонирование матрицы
 	int n = elem.size();
 	int m = elem[0].size();
 	Matrix N(m, n);
@@ -118,7 +118,7 @@ Matrix Matrix::transpose() {
 	return N;
 }
 
-// РїРѕРёСЃРє СЃРѕРїСЂСЏР¶РµРЅРЅРѕР№ (РѕР±СЂР°С‚РЅРѕР№) РјР°С‚СЂРёС†С‹
+// поиск сопряженной (обратной) матрицы
 Matrix Matrix::inverse() {
 	try {
 		if (this->det() == 0) throw "Determinant = 0!";
@@ -133,37 +133,37 @@ Matrix Matrix::inverse() {
 	int matrix_size = elem.size();
 	Matrix solve_matrix(matrix_size, matrix_size * 2);
 
-	for (int row = 0; row < matrix_size; row++) // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЂР°Р±РѕС‡РµР№ РјР°С‚СЂРёС†С‹
+	for (int row = 0; row < matrix_size; row++) // инициализация рабочей матрицы
 		for (int col = 0; col < matrix_size * 2; col++)
 			solve_matrix[row][col] = (col < matrix_size) ? elem[row][col] : (col == row + (matrix_size)) ? 1 : 0;
 
-	// РџСЂСЏРјРѕР№ С…РѕРґ
-	for (int iteration = 0; iteration < matrix_size; iteration++) { // РЅРѕРјРµСЂ РёС‚РµСЂР°С†РёРё
-		if (solve_matrix[iteration][iteration] == 0) { // РїСЂРѕРІРµСЂРєР° РІРµРґСѓС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р° РЅР° 0
+	// Прямой ход
+	for (int iteration = 0; iteration < matrix_size; iteration++) { // номер итерации
+		if (solve_matrix[iteration][iteration] == 0) { // проверка ведущего элемента на 0
 			int tmp = iteration;
-			while (tmp < matrix_size) // РїРѕРёСЃРє СЃС‚СЂРѕРєРё СЃ РЅРµРЅСѓР»РµРІС‹Рј РІРµРґСѓС‰РёРј СЌР»РµРјРµРЅС‚РѕРј
+			while (tmp < matrix_size) // поиск строки с ненулевым ведущим элементом
 				if (solve_matrix[tmp][iteration] == 0)
 					tmp++;
 				else
 					break;
 			if (tmp == matrix_size)
 				continue;
-			for (int col = 0; col < 2 * matrix_size; col++) // РїРµСЂРµСЃС‚Р°РЅРѕРІРєР° СЃС‚СЂРѕРєРё
+			for (int col = 0; col < 2 * matrix_size; col++) // перестановка строки
 				swap(solve_matrix[tmp][col], solve_matrix[iteration][col]);
 		}
 
 		double K = solve_matrix[iteration][iteration];
-		for (int col = 0; col < 2 * matrix_size; col++) // РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РІРµРґСѓС‰РµР№ СЃС‚СЂРѕРєРё
+		for (int col = 0; col < 2 * matrix_size; col++) // преобразование ведущей строки
 			solve_matrix[iteration][col] = solve_matrix[iteration][col] / K;
 
-		for (int row = iteration + 1; row < matrix_size; row++) { // РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃС‚СЂРѕРє
+		for (int row = iteration + 1; row < matrix_size; row++) { // преобразование остальных строк
 			double K = solve_matrix[row][iteration] / solve_matrix[iteration][iteration];
 			for (int col = 0; col < 2 * matrix_size; col++)
 				solve_matrix[row][col] = solve_matrix[row][col] - (solve_matrix[iteration][col] * K);
 		}
 	}
 
-	// РћР±СЂР°С‚РЅС‹Р№ С…РѕРґ
+	// Обратный ход
 	for (int iteration = matrix_size - 1; iteration > -1; iteration--) {
 
 		if (solve_matrix[iteration][iteration] == 0) {
@@ -191,15 +191,15 @@ Matrix Matrix::inverse() {
 		}
 	}
 
-	Matrix ans(matrix_size, matrix_size); // РјР°С‚СЂРёС†Р° СЃ РѕС‚РІРµС‚РѕРј
-	for (int row = 0; row < matrix_size; row++) // Р·Р°РїРѕР»РЅРµРЅРёРµ РјР°С‚СЂРёС†С‹ СЃ РѕС‚РІРµС‚РѕРј
+	Matrix ans(matrix_size, matrix_size); // матрица с ответом
+	for (int row = 0; row < matrix_size; row++) // заполнение матрицы с ответом
 		for (int col = 0; col < matrix_size; col++)
 			ans[row][col] = solve_matrix[row][col + matrix_size];
 	return ans;
 }
 
-// РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅРѕРµ РїРµСЂРµРјРЅРѕР¶РµРЅРёРµ РјР°С‚СЂРёС†
-Matrix& Matrix::operator*(const Matrix& N) const{
+// многопоточное перемножение матриц
+Matrix& Matrix::operator*(Matrix& N) const {
 	int m1 = elem.size();
 	int m2 = elem[0].size();
 	int n1 = N.rows_num();
@@ -210,28 +210,28 @@ Matrix& Matrix::operator*(const Matrix& N) const{
 	}
 	Matrix K(m1, n2);
 	int i, j, k;
-	#pragma omp parallel for private(i, j, k) shared(elem, N, K)
-		for (i = 0; i < m1; i++) {
-			for (j = 0; j < n2; j++) {
-				K[i][j] = 0;
-				for (k = 0; k < n1; k++) {
-					K[i][j] += (elem[i][k] * N[k][j]);
-				}
+#pragma omp parallel for private(i, j, k) shared(elem, N, K)
+	for (i = 0; i < m1; i++) {
+		for (j = 0; j < n2; j++) {
+			K[i][j] = 0;
+			for (k = 0; k < n1; k++) {
+				K[i][j] += (elem[i][k] * N[k][j]);
 			}
 		}
+	}
 	return K;
 }
 
 void Matrix::resize(int rows, int cols) {
-	elem.resize(rows, vector<double> (cols));
+	elem.resize(rows, vector<double>(cols));
 }
 
-double* Matrix::operator[](int index) const {
+vector<double>& Matrix::operator[](int index) {
 	return elem[index];
 }
 
-Matrix mult_Matrix(const Matrix& M, const Matrix& N) {
-	// РїРµСЂРµРјРЅРѕР¶РµРЅРёРµ РґРІСѓС… РјР°С‚СЂРёС†
+Matrix mult_Matrix(Matrix& M, Matrix& N) {
+	// перемножение двух матриц
 	//M = M1;
 	//N = N1;
 	int m1 = M.rows_num();
