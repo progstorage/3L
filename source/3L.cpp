@@ -214,24 +214,27 @@ void solve_system(Matrix& M, double d, int num) {
 	for (int i = len / 3; i < 2 * len / 3; i++) { b[0][i] = 0; }
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
 
-	Matrix a(0, 0); // возможно ошибка (не делал конструктор по умолчанию и не перегружал оператор =)
+	Matrix a;
 
 	#if TEST_MODE == 1
-		clock_t start_1, end_1, start_2, end_2;
+		//clock_t start_1, end_1, start_2, end_2;
 	
 		// многопоточное умножение матрицы на вектор
-		start_1 = clock();
-		// a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));		
+		auto start_1 = std::chrono::system_clock::now();
+
 		a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
-		end_1 = clock() - start_1;
+
+		auto end_1 = std::chrono::duration<double>(std::chrono::system_clock::now() - start_1);
 			
 		// однопоточное
-		start_2 = clock();
-		Matrix _a = mult_Matrix(mult_Matrix(inverse_Matrix(mult_Matrix(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
-		end_2 = clock() - start_2;
+		auto start_2 = std::chrono::system_clock::now();
+
+		Matrix _a = mult_Matrix(mult_Matrix(mult_Matrix(M.transpose(), M).inverse(), M.transpose()), b.transpose());
 		
-		cout << "\nSingle-threaded multiplication execution time:\t" << end_2 / (double)CLOCKS_PER_SEC
-			 << "\nMulti-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC;
+		auto end_2 = std::chrono::duration<double>(std::chrono::system_clock::now() - start_2);
+		
+		cout << "\nSingle-threaded multiplication execution wall time:\t" << end_2.count()
+			 << "\nMulti-threaded multiplication execution wall time:\t" << end_1.count();
 	
 		if (_a == a)
 			cout << "\nBoth methods gave the same result!" << endl;
@@ -239,24 +242,24 @@ void solve_system(Matrix& M, double d, int num) {
 			cout << "\nDifferent results, something went wrong!" << endl;
 	#elif TEST_MODE == 2
 		// big-size matrix testing
-		clock_t start_1, end_1, start_2, end_2;
+		//clock_t start_1, end_1, start_2, end_2;
 
 		// многопоточное умножение матрицы на вектор
-		start_1 = clock();
+		auto start_1 = std::chrono::system_clock::now();
 		// a = mult_Matrix_multithread(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
 		a = generate_random_Matrix(size_1, size_2) * generate_random_Matrix(size_2, size_3);
-		end_1 = clock() - start_1;
+		auto end_1 = std::chrono::duration<double>(std::chrono::system_clock::now() - start_1);
+
 
 		// однопоточное
-		start_2 = clock();
+		auto start_2 = std::chrono::system_clock::now();
 		Matrix _a = mult_Matrix(generate_random_Matrix(size_1, size_2), generate_random_Matrix(size_2, size_3));
-		end_2 = clock() - start_2;
+		auto end_2 = std::chrono::duration<double>(std::chrono::system_clock::now() - start_2);
 
-		cout << "\nSingle-threaded multiplication execution time:\t" << end_2 / (double)CLOCKS_PER_SEC
-			 << "\nMulti-threaded multiplication execution time:\t" << end_1 / (double)CLOCKS_PER_SEC;
+		cout << "\nSingle-threaded multiplication execution wall time:\t" << end_2.count()
+			 << "\nMulti-threaded multiplication execution wall time:\t" << end_1.count();
 		cout << endl;
 	#else
-		// a = mult_Matrix_multithread(mult_Matrix_multithread(inverse_Matrix(mult_Matrix_multithread(transpose_Matrix(M), M)), transpose_Matrix(M)), transpose_Matrix(b));
 		a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
 	#endif
 	auto name = dir + to_string(num) + type;
@@ -271,12 +274,12 @@ void solve_system(Matrix& M, double d, int num) {
 void fill_levels_multithread(double d) {
 	int i;
 	vector_pairs l1, l3;
-	Matrix M(0, 0);
+	Matrix M;
 
 	#if TEST_MODE
-		clock_t start_1, end_1, start_2, end_2;
-		start_1 = clock();
-
+		// TEST_MODE 1 or 2
+		auto start_1 = std::chrono::system_clock::now();
+		
 		// многопоточное создание уровней
 		#pragma omp parallel for private(i) shared(points_clusters_array, l1, l3)
 			for (i = 0; i < points_clusters_count; i++) {
@@ -286,32 +289,33 @@ void fill_levels_multithread(double d) {
 				levels(points_clusters_array[i], d, l1, l3, i + 1);
 
 				M.resize(points_clusters_array[i].size() * 3, 6);
-				fill_3L_Matrix_2nd_power(M, points_clusters_array[i], l1, l3);
+				M.fill_3L_Matrix_2nd_power(points_clusters_array[i], l1, l3);
 				solve_system(M, d, i + 1);
 
 				l1.clear();
 				l3.clear();
 			}
-		end_1 = clock() - start_1;
+		auto end_1 = std::chrono::duration<double>(std::chrono::system_clock::now() - start_1);
 
 		// однопоточное
-		start_2 = clock();
+		auto start_2 = std::chrono::system_clock::now();
+
 		for (int j = 0; j < points_clusters_count; j++) {
 			l1.resize(points_clusters_array[j].size());
 			l3.resize(points_clusters_array[j].size());
 			levels(points_clusters_array[j], d, l1, l3, j + 1);
 
 			M.resize(points_clusters_array[j].size() * 3, 6);
-			fill_3L_Matrix_2nd_power(M, points_clusters_array[j], l1, l3);
+			M.fill_3L_Matrix_2nd_power(points_clusters_array[j], l1, l3);
 			solve_system(M, d, j + 1);
 
 			l1.clear();
 			l3.clear();
 		}
-		end_2 = clock() - start_2;
+		auto end_2 = std::chrono::duration<double> (std::chrono::system_clock::now() - start_2);
 
-		cout << "\nSingle-threaded level creation time:\t" << end_2 / (double)CLOCKS_PER_SEC
-			 << "\nMulti-threaded level creation time:\t" << end_1 / (double)CLOCKS_PER_SEC;
+		cout << "\nSingle-threaded level creation wall time:\t" << end_2.count()
+			 << "\nMulti-threaded level creation wall time:\t" << end_1.count();
 
 	#else
 		#pragma omp parallel for private(i) shared(points_clusters_array, l1, l3)

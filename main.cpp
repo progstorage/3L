@@ -1,5 +1,5 @@
 #ifdef _WIN32
-	#include "stdafx.h"
+	//#include "stdafx.h"
 #endif
 
 #include "config.h"
@@ -41,8 +41,8 @@ int main(void) {
 	Spline.build_spline(x, y, 11);
 	//Spline.write_poinst(Spline, x[0], x[x.size()-1]);
 	double res = Spline.f(0);
-	cout << "res = " << res;
-	cin.get(); cin.get();
+	//cout << "res = " << res;
+	//cin.get(); cin.get();
 
 	setup();
 

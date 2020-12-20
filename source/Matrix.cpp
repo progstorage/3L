@@ -53,6 +53,23 @@ void Matrix::print() {
 	}
 }
 
+bool operator==(const Matrix& M, const Matrix& N) {
+	int m1 = M.rows_num();
+	int m2 = M.cols_num();
+	int n1 = N.rows_num();
+	int n2 = N.cols_num();
+	if (m1 != n1 or m2 != n2) {
+		cerr << "Wrong sizes for comparison!";
+		exit(0);
+	}
+
+	for (int i = 0; i < m1; i++)
+		for (int j = 0; j < m2; j++)
+			if (M[i][j] != N[i][j])
+				return false;
+	return true;
+}
+
 // заполнение матрицы
 void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
 	// заполняет матрицу (2я степень неявной функции)
@@ -91,7 +108,7 @@ void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_p
 }
 
 // поиск транспонированнной матрицы
-Matrix Matrix::transpose() {
+Matrix Matrix::transpose() const{
 	// транспонирование матрицы
 	int n = elem.size();
 	int m = elem[0].size();
@@ -184,9 +201,9 @@ Matrix Matrix::inverse() {
 }
 
 // многопоточное перемножение матриц
-Matrix Matrix::operator*(const Matrix& N) {
-	int m1 = elem.size();
-	int m2 = elem[0].size();
+Matrix operator*(const Matrix& M, const Matrix& N) {
+	int m1 = M.rows_num();
+	int m2 = M.cols_num();
 	int n1 = N.rows_num();
 	int n2 = N.cols_num();
 	if (m2 != n1) {
@@ -195,15 +212,15 @@ Matrix Matrix::operator*(const Matrix& N) {
 	}
 	Matrix K(m1, n2);
 	int i, j, k;
-#pragma omp parallel for private(i, j, k) shared(elem, N, K)
-	for (i = 0; i < m1; i++) {
-		for (j = 0; j < n2; j++) {
-			K[i][j] = 0;
-			for (k = 0; k < n1; k++) {
-				K[i][j] += (elem[i][k] * N[k][j]);
+	#pragma omp parallel for private(i, j, k) shared(M, N, K)
+		for (i = 0; i < m1; i++) {
+			for (j = 0; j < n2; j++) {
+				K[i][j] = 0;
+				for (k = 0; k < n1; k++) {
+					K[i][j] += (M[i][k] * N[k][j]);
+				}
 			}
 		}
-	}
 	return K;
 }
 
