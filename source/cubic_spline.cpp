@@ -94,25 +94,6 @@ void cubic_spline::write_poinst(cubic_spline Spline, double min, double max, int
 }
 
 
-void cubic_spline::write_poinst(cubic_spline Spline, double min, double max, int numpoints = 100) {
-	vector<double> x;
-	vector<double> y;
-	int i = 0;
-	double p = min;
-	double h = (max - min) / numpoints;
-	while (p <= max) {
-		x.push_back(p);
-		y.push_back(Spline.f(p));
-		p += h;
-	}
-
-	ofstream outfile("out.txt", ios::out | ios::trunc); //хз че за ошибка, нажимаешь продолжить и все работает
-	for (int i = 0; i <= numpoints; i++) {
-		outfile << fixed << x[i] << "," << y[i] << endl;
-	}
-	outfile.close();
-}
-
 
 double cubic_spline::diff_spline(double x) const {// Возвращает значение интерполированной функции в точке x
 	if (!splines)
