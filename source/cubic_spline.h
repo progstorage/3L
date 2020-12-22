@@ -22,6 +22,7 @@ public:
 	void build_spline(vector<double>&, vector<double>&, std::size_t);
 	void write_poinst(cubic_spline, double, double, int); // Çàïèñûâàåò çíà÷åíèÿ ñïëàéíà â òî÷êàõ ïðîìåæóòêà [xmin-3, xmax+3]
 	double f(double) const;	// Âû÷èñëåíèå çíà÷åíèÿ èíòåðïîëèðîâàííîé ôóíêöèè â ïðîèçâîëüíîé òî÷êå
+	double diff_spline(double) const; //возвращает значение производной сплайна в точке 
 };
 
 #endif

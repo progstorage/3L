@@ -92,3 +92,54 @@ void cubic_spline::write_poinst(cubic_spline Spline, double min, double max, int
 	}
 	outfile.close();
 }
+
+
+void cubic_spline::write_poinst(cubic_spline Spline, double min, double max, int numpoints = 100) {
+	vector<double> x;
+	vector<double> y;
+	int i = 0;
+	double p = min;
+	double h = (max - min) / numpoints;
+	while (p <= max) {
+		x.push_back(p);
+		y.push_back(Spline.f(p));
+		p += h;
+	}
+
+	ofstream outfile("out.txt", ios::out | ios::trunc); //хз че за ошибка, нажимаешь продолжить и все работает
+	for (int i = 0; i <= numpoints; i++) {
+		outfile << fixed << x[i] << "," << y[i] << endl;
+	}
+	outfile.close();
+}
+
+
+double cubic_spline::diff_spline(double x) const {// Возвращает значение интерполированной функции в точке x
+	if (!splines)
+		return std::numeric_limits<double>::quiet_NaN(); // Если сплайны ещё не построены - возвращаем NaN
+	spline_tuple *s;
+	if (x <= splines[0].x) // Если x меньше точки сетки x[0] - пользуемся первым эл - тов массива
+		s = splines + 1;
+	else if (x >= splines[n - 1].x) // Если x больше точки сетки x[n - 1] - пользуемся последним эл - том массива
+		s = splines + n - 1;
+	else { // Иначе x лежит между граничными точками сетки - производим бинарный поиск нужного эл - та массива
+		std::size_t i = 0, j = n - 1;
+		while (i + 1 < j) {
+			std::size_t k = i + (j - i) / 2;
+			if (x <= splines[k].x)
+				j = k;
+			else
+				i = k;
+		}
+		s = splines + j;
+	}
+	double dx = (x - s->x);
+	double res = s->b + s->c + dx + s->d * dx * dx / 2.0;
+	if (res) {
+		return res;
+	}
+	else {
+		return 0.0000000000000000001;
+	}
+	//return s->a + (s->b + (s->c / 2 + s->d * dx / 6.) * dx) * dx; // Вычисляем значение сплайна в заданной точке по схеме Горнера
+}

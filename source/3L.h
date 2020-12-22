@@ -33,6 +33,7 @@ using vector_pairs = std::vector<std::pair<double, double> >;
 
 Matrix		generate_random_Matrix(const int, const int);
 void		levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
+void		test_spline_norm_levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
 void		solve_system(Matrix&, double, int);
 void		fill_levels_multithread(double);
 double		diff(pair<double, double>, pair<double, double>);

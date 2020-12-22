@@ -194,6 +194,70 @@ void levels(vector_pairs points, double d, vector_pairs& l1, vector_pairs& l3, i
 }
 
 
+
+void test_spline_norm_levels(vector_pairs points, double d, vector_pairs& l1, vector_pairs& l3, int num) {
+	// TEST
+	// Построение уровней с помощью нормалей к сплайнам, построенным по точкам points
+	string type = ".txt";
+	string dir = "levels/";
+
+	int len = points.size();
+
+	vector<double> x;
+	vector<double> y;
+	for (int i = 0; i < points_clusters_array[0].size(); i++) {
+		x.push_back(points[i].first);
+		y.push_back(points[i].second);
+	}
+	cubic_spline Spline;
+	Spline.build_spline(x, y, len);
+	double nx[3], ny[3], dy, n;
+
+	for (int i = 0; i < len; i++) {
+		nx[0] = x[i];
+		nx[1] = x[i] + d;
+		nx[2] = nx[1] - nx[0];
+
+		if (i != 0) {
+			dy = Spline.diff_spline(x[i]);
+		}
+		else {
+			// в первой точке производная считается неправильно, поэтому отступаем от нее на малую величину
+			dy = Spline.diff_spline(x[i] + 0.000001);
+		}
+
+		ny[0] = Spline.f(nx[0]);
+		ny[1] = Spline.f(nx[1]) - d / dy;
+		ny[2] = ny[1] - ny[0];
+
+		n = sqrt(nx[2] * nx[2] + ny[2] * ny[2]);
+		nx[2] /= n;
+		ny[2] /= n;
+
+		if (dy > 0) {
+			l1[i].first = x[i] + d * nx[2];
+			l1[i].second = y[i] + d * ny[2];
+			l3[i].first = x[i] - d * nx[2];
+			l3[i].second = y[i] - d * ny[2];
+		}
+		else {
+			l1[i].first = x[i] - d * nx[2];
+			l1[i].second = y[i] - d * ny[2];
+			l3[i].first = x[i] + d * nx[2];
+			l3[i].second = y[i] + d * ny[2];
+		}
+	}
+
+
+	auto name = dir + to_string(num) + type;
+	ofstream outfile(name, ios::out | ios::trunc);
+	for (int i = 0; i < len; i++) {
+		outfile << fixed << l1[i].first << "," << l1[i].second << "," << l3[i].first << "," << l3[i].second << endl;
+	}
+	outfile.close();
+}
+
+
 Matrix generate_random_Matrix(const int n, const int m) {
 	// генерирует случайную матрицу размера n x m
 	Matrix res(n, m);
