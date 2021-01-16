@@ -1,4 +1,5 @@
 from math import *
+from mpmath import *
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rnd
@@ -101,6 +102,110 @@ def Fun(x, h):
 			Y[i][1] = y_[i]
 		return Y
 
+	if (x == 10):
+		for i in np.arange(-1,1,h):
+			x_.append(i)
+			y_.append(1/2-(2*i**2))
+
+			x_.append(i)
+			y_.append(i)
+
+			x_.append(i)
+			y_.append(-i)
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 11):
+		for i in np.arange(-4.6,4.6,0.1):
+			x_.append(i)
+			y_.append(sec(1.5*i))
+
+			x_.append(i)
+			y_.append(1.5*cos(i))
+
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 12):
+		for i in np.arange(-2,2,h):
+			x_.append(i)
+			y_.append(sqrt(4-(i**2)))
+
+			x_.append(i)
+			y_.append(-sqrt(4-(i**2)))
+
+			x_.append(i)
+			y_.append((i**2)-2)
+
+			x_.append(i)
+			y_.append(-(i**2)+2)
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 13):
+		for i in np.arange(-0.5,1.5,h):
+			x_.append(i)
+			y_.append((i**5)+0.5*i-3*(i**2))
+
+			x_.append(i)
+			y_.append(1.5*(i**2)-2*i)
+
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 14):
+		for i in np.arange(-pi/3,pi/3,h):
+
+			x_.append(i)
+			y_.append(0.5*sin(3*i))
+
+			x_.append(i)
+			y_.append(-0.5*sin(3*i))
+
+			x_.append(i)
+			y_.append(sin(i)**2)
+
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
+	if (x == 15):
+		for i in np.arange(-0.5,0.5,h):
+
+			if (i<=0):
+				x_.append(i)
+				y_.append(2*i+1)
+
+			if (i>=0):
+				x_.append(i)
+				y_.append(-2*i+1)
+
+			x_.append(i)
+			y_.append(sqrt(i+0.5))
+
+			x_.append(i)
+			y_.append(sqrt(-i+0.5))
+
+		Y = [[0] * 2 for i in range(len(x_))]
+		for i in range(len(x_)):
+			Y[i][0] = x_[i]
+			Y[i][1] = y_[i]
+		return Y
+
 	Y = [[0] * 2 for i in range(len(fi1))]
 
 	for i in range(len(fi1)):
@@ -111,8 +216,8 @@ def Fun(x, h):
 	return Y
 
 h = 0.02 #шаг
-fun_count = 9
-for i in range(1, fun_count + 1):
+fun_count = 15
+for i in range(10, fun_count + 1):
 	xy = Fun(i, h)  
 	# для отрисовки полученной функции:
 	plt.scatter([row[0] for row in xy], [row[1] for row in xy], 1)	
