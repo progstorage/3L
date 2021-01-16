@@ -15,21 +15,21 @@
 //#include <ctime>
 #include <cstdlib>
 #include <limits>
-#include <filesystem>
 #include <chrono>
-// #include "source/config.h"
 
 using namespace std;
-using vector_pairs = std::vector<std::pair<double, double> >;
+using vector_pairs = vector<pair<double, double> >;
+
+#ifdef __APPLE__
+	#include <filesystem>
+	namespace fs = __fs::filesystem;
+#else
+	#include <experimental/filesystem>
+	namespace fs = experimental::filesystem;
+#endif
 
 #include "Matrix.cpp"
 #include "cubic_spline.cpp"
-
-#ifdef __APPLE__
-	namespace fs = __fs::filesystem;
-#else
-	namespace fs = experimental::filesystem;
-#endif
 
 Matrix		generate_random_Matrix(const int, const int);
 void		levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
