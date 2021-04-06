@@ -21,9 +21,13 @@ int main(void) {
 
 	switch (ME.execution_method) {
 	case 1:
+		//vector<double> d = pre3L(ME.x, ME.y);
+
 		old_sort(ME.x, ME.y, &d);
 		break;
 	case 2:
+		//vector<double> d = pre3L(ME.x, ME.y);
+
 		sort_method_2(ME.x, ME.y, &d);
 		break;
 	default:
