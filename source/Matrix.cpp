@@ -1,5 +1,4 @@
 #include "Matrix.h"
-
 // конструктор
 Matrix::Matrix(int rows, int cols) {
 	this->elem.resize(rows, vector<double>(cols));
@@ -270,4 +269,76 @@ Matrix& Matrix::operator=(const Matrix& M) {
 		for (int j = 0; j < elem[i].size(); j++)
 			elem[i][j] = M[i][j];
 	return *this;
+}
+
+Matrix operator-(const Matrix& M) {
+	Matrix res = Matrix(M.rows_num(), M.cols_num());
+	for (int i = 0; i < M.rows_num(); i++) {
+		for (int j = 0; j < M.cols_num(); j++) {
+			res[i][j] = -M[i][j];
+		}
+	}
+	return res;
+}
+
+Matrix operator-(const Matrix& M1, const Matrix& M2) {
+	Matrix res = Matrix(M1.rows_num(), M1.cols_num());
+	for (int i = 0; i < M1.rows_num(); i++) {
+		for (int j = 0; j < M1.cols_num(); j++) {
+			res[i][j] = M1[i][j] - M2[i][j];
+		}
+	}
+	return res;
+}
+
+Matrix operator+(const Matrix& M1, const Matrix& M2) {
+	Matrix res = Matrix(M1.rows_num(), M1.cols_num());
+	for (int i = 0; i < M1.rows_num(); i++) {
+		for (int j = 0; j < M1.cols_num(); j++) {
+			res[i][j] = M1[i][j] + M2[i][j];
+		}
+	}
+	return res;
+}
+
+Matrix operator*(const double d, const Matrix& M) {
+	Matrix res = Matrix(M.rows_num(), M.cols_num());
+	for (int i = 0; i < M.rows_num(); i++) {
+		for (int j = 0; j < M.cols_num(); j++) {
+			res[i][j] = M[i][j] * 2;
+		}
+	}
+	return res;
+}
+
+Matrix Matrix::element_power(double pow_n) {
+	int n = elem.size();
+	int m = elem[0].size();
+	Matrix res = Matrix(n, m);
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			res[i][j] = pow(elem[i][j], pow_n);
+		}
+	}
+	return res;
+}
+
+Matrix Matrix::element_div(Matrix& m) {
+	Matrix res = Matrix(rows_num(), cols_num());
+	for (int i = 0; i < rows_num(); i++) {
+		for (int j = 0; j < cols_num(); j++) {
+			res[i][j] = elem[i][j] / m[i][j];
+		}
+	}
+	return res;
+}
+
+Matrix Matrix::element_div(double d) {
+	Matrix res = Matrix(rows_num(), cols_num());
+	for (int i = 0; i < rows_num(); i++) {
+		for (int j = 0; j < cols_num(); j++) {
+			res[i][j] = elem[i][j] / d;;
+		}
+	}
+	return res;
 }

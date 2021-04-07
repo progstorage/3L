@@ -1,9 +1,9 @@
-#pragma once
+п»ї#pragma once
 //#include "stdafx.h"
 
 #ifdef _WIN32
-	#include "windows.h"
-	#include <process.h>
+#include "windows.h"
+#include <process.h>
 #endif
 
 #include <stdlib.h>
@@ -19,13 +19,13 @@
 
 using namespace std;
 using vector_pairs = vector<pair<double, double> >;
-
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #ifdef __APPLE__
-	#include <filesystem>
-	namespace fs = __fs::filesystem;
+#include <filesystem>
+namespace fs = __fs::filesystem;
 #else
-	#include <experimental/filesystem>
-	namespace fs = experimental::filesystem;
+#include <experimental/filesystem>
+namespace fs = experimental::filesystem;
 #endif
 
 #include "Matrix.cpp"
@@ -40,6 +40,18 @@ double		diff(pair<double, double>, pair<double, double>);
 int			sort_method_2(const vector<double>&, const vector<double>&, double*);
 int			old_sort(const vector<double>&, const vector<double>&, double*);
 
+// new alg
+vector<double>	matr_max(const Matrix&);
+int				vec_min_ind(vector<double>);
+double			vec_max(vector<double>);
+double			vec_sum(vector<double>, int);
+vector<double>	vec_mult(vector<double>, vector<double>);
+double			mean(vector<double>);
+void			quickSort(vector<double>&, int, int, vector<int>&);
+void			mls(double*, double*, double*, vector<double>, vector<double>);
+double			pre3L(vector<double>&, vector<double>&);
+
+
 // global vars
-vector<vector_pairs>	points_clusters_array;		//вектор групп точек
-int						points_clusters_count = 0;	//количество групп точек
+vector<vector_pairs>	points_clusters_array;		//ГўГҐГЄГІГ®Г° ГЈГ°ГіГЇГЇ ГІГ®Г·ГҐГЄ
+int						points_clusters_count = 0;	//ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЈГ°ГіГЇГЇ ГІГ®Г·ГҐГЄ
