@@ -69,6 +69,48 @@ bool operator==(const Matrix& M, const Matrix& N) {
 	return true;
 }
 
+void Matrix::fill_3L_Matrix_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3, int power) {
+	int max_col = 0;
+	for (int i = 1; i <= power+1; i++) {
+		max_col += i;
+	}
+	int cur_row; int max_pow;
+	for (int i = 0; i < this->elem.size() / 3; i++) {
+		cur_row = 0; max_pow = 1;
+		while (cur_row < max_col) {
+			for (int b = 0; b < max_pow; b++) {
+				this->elem[i][cur_row] = pow(l1[i].first, max_pow - 1 - b) * pow(l1[i].second, 0 + b);
+				cur_row++;
+			}
+			max_pow++;
+		}
+	}
+	int j = 0;
+	for (int i = this->elem.size() / 3; i < 2 * this->elem.size() / 3; i++) {
+		cur_row = 0; max_pow = 1;
+		while (cur_row < max_col) {
+			for (int b = 0; b < max_pow; b++) {
+				this->elem[i][cur_row] = pow(points[j].first, max_pow - 1 - b) * pow(points[j].second, 0 + b);
+				cur_row++;
+			}
+			max_pow++;
+		}
+		j++;
+	}
+	j = 0;
+	for (int i = 2 * this->elem.size() / 3; i < this->elem.size(); i++) {
+		cur_row = 0; max_pow = 1;
+		while (cur_row < max_col) {
+			for (int b = 0; b < max_pow; b++) {
+				this->elem[i][cur_row] = pow(l3[j].first, max_pow - 1 - b) * pow(l3[j].second, 0 + b);
+				cur_row++;
+			}
+			max_pow++;
+		}
+		j++;
+	}
+}
+
 // заполнение матрицы
 void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
 	// заполняет матрицу (2я степень неявной функции)

@@ -20,6 +20,7 @@ public:
 	int cols_num() const;
 	double det();
 	void print();
+	void fill_3L_Matrix_power(const vector_pairs&, const vector_pairs&, const vector_pairs&, int);
 	void fill_3L_Matrix_2nd_power(const vector_pairs&, const vector_pairs&, const vector_pairs&);
 	void fill_3L_Matrix_3d_power(const vector_pairs&, const vector_pairs&, const vector_pairs&);
 	void fill_3L_Matrix_4th_power(const vector_pairs&, const vector_pairs&, const vector_pairs&);
