@@ -56,11 +56,9 @@ def plot_g():
     a = []
     try:
         for file in os.listdir("coefs/"):
-            tmpa = []
             with open("coefs/" + file, 'r') as f:
                 for line in f:
-                    tmpa.append(float(line))
-            a.append(tmpa)
+                    a.append(float(line))
     except Exception as exc:
         print(f"Can't plot polinom, error: {exc}")
 
@@ -77,26 +75,26 @@ def plot_g():
             ax.scatter([i[0] for i in l1[j]], [i[1] for i in l1[j]], color="green")
             plt.scatter([i[0] for i in l3[j]], [i[1] for i in l3[j]], color="orange")
 
-        '''for i in range(len(x)):
-            ax.scatter(x[i], y[i])
-            #ax.plot(x[i], y[i])
-        
-        for j in range(len(l1)):
-            ax.scatter([i[0] for i in l1[j]], [i[1] for i in l1[j]], color="green")
-            #ax.plot([i[0] for i in l1[j]], [i[1] for i in l1[j]], color="green")
-
-        for j in range(len(l3)):
-            plt.scatter([i[0] for i in l3[j]], [i[1] for i in l3[j]], color="orange")
-            #plt.plot([i[0] for i in l3[j]], [i[1] for i in l3[j]], color="orange")'''
     if a:
-        for j in range(len(a)):
-            f = lambda x, y: a[j][0]+a[j][1]*x+a[j][2]*y+a[j][3]*x*x+a[j][4]*x*y+a[j][5]*y*y
-            delta = 0.025
-            x_range = np.arange(min_y-1, max_y+1, delta)
-            y_range = np.arange(min_x-1, max_x+1, delta)
-            X, Y = np.meshgrid(x_range, y_range)
-            F = f(X, Y)
-            ax.contour(X, Y, F, [0], colors = ['red'])
+        len_a = len(a)
+        if len_a == 6:
+            f = lambda x, y: a[0]+a[1]*x+a[2]*y+a[3]*x*x+a[4]*x*y+a[5]*y*y
+        elif len_a == 10:
+            f = lambda x, y: a[0]+a[1]*x+a[2]*y+a[3]*x*x+a[4]*x*y+a[5]*y*y +a[6]*x**3+a[7]*x**2*y+a[8]*x*y**2+a[9]*y**3
+        elif len_a == 15:
+            f = lambda x, y: a[0]+a[1]*x+a[2]*y+a[3]*x*x+a[4]*x*y+a[5]*y*y +a[6]*x**3+a[7]*x**2*y+a[8]*x*y**2+a[9]*y**3+a[10]*x**4+a[11]*x**3*y+a[12]*x**2*y**2+a[13]*x*y**3+a[14]*y**4
+        elif len_a == 21:
+            f = lambda x, y: a[0]+a[1]*x+a[2]*y+a[3]*x*x+a[4]*x*y+a[5]*y*y +a[6]*x**3+a[7]*x**2*y+a[8]*x*y**2+a[9]*y**3+a[10]*x**4+a[11]*x**3*y+a[12]*x**2*y**2+a[13]*x*y**3+a[14]*y**4+a[15]*x**5+a[16]*x**4*y+a[17]*x**3*y**2+a[18]*x**2*y**3+a[19]*x*y**4+a[20]*y**5
+        elif len_a == 28:
+            f = lambda x, y: a[0]+a[1]*x+a[2]*y+a[3]*x*x+a[4]*x*y+a[5]*y*y +a[6]*x**3+a[7]*x**2*y+a[8]*x*y**2+a[9]*y**3+a[10]*x**4+a[11]*x**3*y+a[12]*x**2*y**2+a[13]*x*y**3+a[14]*y**4+a[15]*x**5+a[16]*x**4*y+a[17]*x**3*y**2+a[18]*x**2*y**3+a[19]*x*y**4+a[20]*y**5+a[21]*x**6+a[22]*x**5*y+a[23]*x**4*y**2+a[24]*x**3*y**3+a[25]*x**2*y**4+a[26]*x*y**5+a[27]*y**6
+        elif len_a == 36:
+            f = lambda x, y: a[0]+a[1]*x+a[2]*y+a[3]*x*x+a[4]*x*y+a[5]*y*y +a[6]*x**3+a[7]*x**2*y+a[8]*x*y**2+a[9]*y**3+a[10]*x**4+a[11]*x**3*y+a[12]*x**2*y**2+a[13]*x*y**3+a[14]*y**4+a[15]*x**5+a[16]*x**4*y+a[17]*x**3*y**2+a[18]*x**2*y**3+a[19]*x*y**4+a[20]*y**5+a[21]*x**6+a[22]*x**5*y+a[23]*x**4*y**2+a[24]*x**3*y**3+a[25]*x**2*y**4+a[26]*x*y**5+a[27]*y**6+a[28]*x**7+a[29]*x**6*y+a[30]*x**5*y**2+a[31]*x**4*y**3+a[32]*x**3*y**4+a[33]*x**2*y**5+a[34]*x*y**6+a[35]*y**7
+        delta = 0.025
+        x_range = np.arange(min_y-1, max_y+1, delta)
+        y_range = np.arange(min_x-1, max_x+1, delta)
+        X, Y = np.meshgrid(x_range, y_range)
+        F = f(X, Y)
+        ax.contour(X, Y, F, [0], colors = ['red'])
         #plt.gca().set_aspect('equal', adjustable='box')
         #plt.draw()
     plt.show()
