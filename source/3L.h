@@ -44,6 +44,7 @@ int			old_sort(const vector<double>&, const vector<double>&, double*);
 vector<double>	matr_max(const Matrix&);
 int				vec_min_ind(vector<double>);
 double			vec_max(vector<double>);
+double			vec_min(vector<double>);
 double			vec_sum(vector<double>, int);
 vector<double>	vec_mult(vector<double>, vector<double>);
 double			mean(vector<double>);

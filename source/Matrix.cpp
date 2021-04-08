@@ -106,6 +106,58 @@ void Matrix::fill_3L_Matrix_2nd_power(const vector_pairs& points, const vector_p
 	}
 }
 
+
+void Matrix::fill_3L_Matrix_3d_power(const vector_pairs& points, const vector_pairs& l1, const vector_pairs& l3) {
+	// заполн€ет матрицу (3€ степень не€вной функции)
+	// ћатрица вида 
+	// [M-]
+	// [M0]
+	// [M+]
+	for (int i = 0; i < this->elem.size() / 3; i++) {
+		this->elem[i][0] = 1;
+		this->elem[i][1] = l1[i].first;
+		this->elem[i][2] = l1[i].second;
+		this->elem[i][3] = l1[i].first * l1[i].first;
+		this->elem[i][4] = l1[i].first * l1[i].second;
+		this->elem[i][5] = l1[i].second * l1[i].second;
+
+		this->elem[i][6] = l1[i].first * l1[i].first * l1[i].first;
+		this->elem[i][7] = l1[i].first * l1[i].first * l1[i].second;
+		this->elem[i][8] = l1[i].second * l1[i].second * l1[i].first;
+		this->elem[i][9] = l1[i].second * l1[i].second * l1[i].second;
+	}
+	int j = 0;
+	for (int i = this->elem.size() / 3; i < 2 * this->elem.size() / 3; i++) {
+		this->elem[i][0] = 1;
+		this->elem[i][1] = points[j].first;
+		this->elem[i][2] = points[j].second;
+		this->elem[i][3] = points[j].first * points[j].first;
+		this->elem[i][4] = points[j].first * points[j].second;
+		this->elem[i][5] = points[j].second * points[j].second;
+
+		this->elem[j][6] = points[j].first * points[j].first * points[j].first;
+		this->elem[j][7] = points[j].first * points[j].first * points[j].second;
+		this->elem[j][8] = points[j].second * points[j].second * points[j].first;
+		this->elem[j][9] = points[j].second * points[j].second * points[j].second;
+		j++;
+	}
+	j = 0;
+	for (int i = 2 * this->elem.size() / 3; i < this->elem.size(); i++) {
+		this->elem[i][0] = 1;
+		this->elem[i][1] = l3[j].first;
+		this->elem[i][2] = l3[j].second;
+		this->elem[i][3] = l3[j].first * l3[j].first;
+		this->elem[i][4] = l3[j].first * l3[j].second;
+		this->elem[i][5] = l3[j].second * l3[j].second;
+
+		this->elem[j][6] = l3[j].first * l3[j].first * l3[j].first;
+		this->elem[j][7] = l3[j].first * l3[j].first * l3[j].second;
+		this->elem[j][8] = l3[j].second * l3[j].second * l3[j].first;
+		this->elem[j][9] = l3[j].second * l3[j].second * l3[j].second;
+		j++;
+	}
+}
+
 // поиск транспонированнной матрицы
 Matrix Matrix::transpose() const{
 	// транспонирование матрицы

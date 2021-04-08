@@ -46,6 +46,17 @@ double vec_max(vector<double> v) {
 	return max;
 }
 
+double vec_min(vector<double> v) {
+	// минимальный элемент вектора
+	double min = v[0];
+	for (int i = 0; i < v.size(); i++) {
+		if (v[i] < min) {
+			min = v[i];
+		}
+	}
+	return min;
+}
+
 double vec_sum(vector<double> v, int deg) {
 	// сумма значений вектора, возведенных в степень deg
 	double sum = 0;
@@ -256,7 +267,7 @@ double pre3L(vector<double>& x, vector<double>& y) {
 	}*/
 	x = xs; y = ys;
 
-	return mean_d*0.1;
+	return mean_d * 0.1;
 }
 
 
@@ -814,7 +825,7 @@ void solve_system(Matrix& M, double d) {
 	for (int i = 2 * len / 3; i < len; i++) { b[0][i] = -d; }
 	Matrix a = ((M.transpose() * M).inverse() * M.transpose()) * b.transpose();
 	ofstream outfile("coefs/coef.txt");
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < a.rows_num(); i++) {
 		outfile << fixed << a[i][0] << endl;
 	}
 	outfile.close();
@@ -829,7 +840,7 @@ void solve_system(Matrix& M, double d) {
 
 
 
-void solve_system1(Matrix& M, double d, int num) {
+/*void solve_system1(Matrix& M, double d, int num) {
 	// Решает систему уравнений - находит коэффициенты многочлена и записывает их в файл "coef.txt"
 	string type = ".txt";
 	string dir = "coefs/";
@@ -965,4 +976,4 @@ void fill_levels_multithread(double d) {
 		l3.clear();
 	}
 #endif
-}
+}*/

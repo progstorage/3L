@@ -21,6 +21,7 @@ public:
 	double det();
 	void print();
 	void fill_3L_Matrix_2nd_power(const vector_pairs&, const vector_pairs&, const vector_pairs&);
+	void fill_3L_Matrix_3d_power(const vector_pairs&, const vector_pairs&, const vector_pairs&);
 	Matrix transpose() const;	// returns transposed copy of matrix
 	Matrix inverse();
 	Matrix element_power(double);
