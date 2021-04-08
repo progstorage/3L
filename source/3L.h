@@ -32,9 +32,9 @@ namespace fs = experimental::filesystem;
 #include "cubic_spline.cpp"
 
 Matrix		generate_random_Matrix(const int, const int);
-void		levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
+void		levels(vector_pairs, double, vector_pairs&, vector_pairs&);
 void		test_spline_norm_levels(vector_pairs, double, vector_pairs&, vector_pairs&, int);
-void		solve_system(Matrix&, double, int);
+void		solve_system(Matrix&, double);
 void		fill_levels_multithread(double);
 double		diff(pair<double, double>, pair<double, double>);
 int			sort_method_2(const vector<double>&, const vector<double>&, double*);
@@ -51,6 +51,19 @@ double			mean(vector<double>);
 void			quickSort(vector<double>&, int, int, vector<int>&);
 void			mls(double*, double*, double*, vector<double>, vector<double>);
 double			pre3L(vector<double>&, vector<double>&);
+
+double			norm(Matrix& m);
+int				minIndex(Matrix& m);
+Matrix			replaceIf(Matrix& m, int key, double key_val, double set_val);
+Matrix			getColumn(Matrix& m, int col_n);
+Matrix			getRow(Matrix& m, int row_n);
+vector<double>	matrixColumnToVector(Matrix& M);
+Matrix			vectorToColumnMatrix(vector<double>& vec);
+Matrix			deleteRow(Matrix& m, int row_num);
+Matrix			reverse(Matrix& m);
+vector<Matrix>	alg3L(vector<double> vx, vector<double> vy);
+void			writeToFile(vector<Matrix> vec);
+
 
 
 // global vars

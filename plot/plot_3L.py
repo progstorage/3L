@@ -64,26 +64,28 @@ def plot_g():
 
     for i in range(len(x)):
         ax.scatter(x[i], y[i])
-        ax.plot(x[i], y[i])
+        #ax.plot(x[i], y[i])
     
     for j in range(len(l1)):
-        ax.scatter([i[0] for i in l1[j]], [i[1] for i in l1[j]])
-        ax.plot([i[0] for i in l1[j]], [i[1] for i in l1[j]])
+        ax.scatter([i[0] for i in l1[j]], [i[1] for i in l1[j]], color="green")
+        #ax.plot([i[0] for i in l1[j]], [i[1] for i in l1[j]], color="green")
 
     for j in range(len(l3)):
-        plt.scatter([i[0] for i in l3[j]], [i[1] for i in l3[j]])
-        plt.plot([i[0] for i in l3[j]], [i[1] for i in l3[j]])
-
-    for j in range(len(a)):
-        f = lambda x, y: a[j][0]+a[j][1]*x+a[j][2]*y+a[j][3]*x*x+a[j][4]*x*y+a[j][5]*y*y
-        delta = 0.025
-        x_range = np.arange(min_y-1, max_y+1, delta)
-        y_range = np.arange(min_x-1, max_x+1, delta)
-        X, Y = np.meshgrid(x_range, y_range)
-        F = f(X, Y)
-        ax.contour(X, Y, F, [0], colors = ['red'])
-    #plt.gca().set_aspect('equal', adjustable='box')
-    #plt.draw()
+        plt.scatter([i[0] for i in l3[j]], [i[1] for i in l3[j]], color="orange")
+        #plt.plot([i[0] for i in l3[j]], [i[1] for i in l3[j]], color="orange")
+    try:
+        for j in range(len(a)):
+            f = lambda x, y: a[j][0]+a[j][1]*x+a[j][2]*y+a[j][3]*x*x+a[j][4]*x*y+a[j][5]*y*y
+            delta = 0.025
+            x_range = np.arange(min_y-1, max_y+1, delta)
+            y_range = np.arange(min_x-1, max_x+1, delta)
+            X, Y = np.meshgrid(x_range, y_range)
+            F = f(X, Y)
+            ax.contour(X, Y, F, [0], colors = ['red'])
+        #plt.gca().set_aspect('equal', adjustable='box')
+        #plt.draw()
+    except Exception as exc:
+        print(f"Can't plot polynomial, error: {exc}")
     plt.show()
     
 

@@ -5,7 +5,7 @@
 
 class Menu {
 public:
-	int execution_method; //1 - ñòàðûé ìåòîä ñîåäèíåíèÿ òî÷åê, 2 - íîâûé ìåòîä ñ ðàçäåëåíèåì òî÷åê íà ãðóïïû
+	int matrix_power; // степень матрицы
 	string dir;
 	vector<string> files;
 	int n;
@@ -21,7 +21,7 @@ public:
 	void split(string, double*, double*);
 	void read_file();
 	void start();
-	void select_execution_method();
+	void select_matrix_power();
 };
 
 #endif

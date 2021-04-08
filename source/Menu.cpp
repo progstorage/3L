@@ -46,16 +46,16 @@ void Menu::select_file() {
 	cout << "\n-------------------------\n\n";
 }
 
-void Menu::select_execution_method() {
-	cout << endl << "Enter 1 - old method, 2 - new method:\t";
-	cin >> execution_method;
+void Menu::select_matrix_power() {
+	cout << endl << "Please enter degree of the polynomial from 2 to 7: ";
+	cin >> matrix_power;
 }
 
 void Menu::start() {
 	print_menu();
 	select_file();
 	read_file();
-	select_execution_method();
+	select_matrix_power();
 }
 
 
