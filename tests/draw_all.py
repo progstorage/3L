@@ -1,5 +1,4 @@
 # отрисовывает все массивы из /tests/in
-
 import os
 import matplotlib.pyplot as plt
 
@@ -15,10 +14,10 @@ def draw(file):
 		plt.show()
 
 
-dir_name = 'in/'
+dir_name = 'in_2/'
 for _, _, files in os.walk(dir_name):
-	i = 0
-	for file in files:
-		i += 1
-		plt.figure(i)
-		draw(dir_name + file)
+    i = 0
+    for file in files:
+        i += 1
+        plt.figure(i)
+        draw(dir_name + file)
